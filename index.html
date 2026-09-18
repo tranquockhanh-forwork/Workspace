@@ -1,0 +1,1344 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Workspace — Không gian làm việc</title>
+<style>
+/* =========================================================================
+   Workspace Module — UI mockup tĩnh
+   Design tokens lấy nguyên từ repo:
+   - packages/features/module-shell/src/lib/module-shell.module.scss
+   - packages/features/inventory/src/lib/inventory.module.scss
+   - packages/shared/ui/src/lib/{minimal-popup-form,popconfirm}.module.css
+   - .agents/skills/ui-design/SKILL.md
+   ========================================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #0f172a; background: #f8f9ff; font-size: 16px; -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; }
+[hidden] { display: none !important; }
+
+/* ---- Shell --------------------------------------------------------------- */
+.shell { display: grid; grid-template-columns: 16rem minmax(0, 1fr); min-height: 100vh; }
+
+/* ---- Rail sidebar -------------------------------------------------------- */
+.rail {
+  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column;
+  width: 16rem; padding: 1.25rem .85rem; border-right: 1px solid rgba(255,255,255,.08);
+  background: #091426; color: #cbd5e1; overflow-y: auto; z-index: 20;
+}
+.brand { display: flex; align-items: center; gap: .75rem; padding: .25rem .5rem 1.25rem; margin-bottom: .5rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+.brandLogo { width: 2.15rem; height: 2.15rem; border-radius: .5rem; display: grid; place-items: center; background: #fff; color: #091426; font-weight: 800; font-size: .82rem; border: 1px solid rgba(255,255,255,.2); box-shadow: 0 1px 3px rgba(0,0,0,.2); flex-shrink: 0; }
+.brandText { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.brandTitle { margin: 0; color: #fff; font-size: .92rem; font-weight: 700; letter-spacing: -.015em; }
+.brandSubtitle { margin: 0; color: #7dd3fc; font-size: .72rem; font-weight: 600; }
+.railNav { display: flex; flex-direction: column; gap: .2rem; flex: 1; }
+.railGroup { padding: 1.1rem .6rem .35rem; color: #64748b; font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.navItem { display: flex; gap: .7rem; align-items: center; width: 100%; padding: .55rem .75rem; border: 0; border-radius: .5rem; color: #94a3b8; font-size: .88rem; font-weight: 500; text-align: left; background: transparent; cursor: pointer; transition: all 140ms ease-in-out; }
+.navItem:hover { color: #fff; background: #1e293b; }
+.navItem.active, .navItem.active:hover { color: #fff; background: #1e293b; font-weight: 600; box-shadow: inset 3px 0 0 #38bdf8; }
+.navIcon { display: inline-flex; flex: none; color: #94a3b8; }
+.navItem.active .navIcon { color: #38bdf8; }
+.navLabel { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.navBadge { flex: none; padding: .1rem .45rem; border-radius: 999px; font-size: .7rem; font-weight: 700; font-variant-numeric: tabular-nums; background: #334155; color: #f1f5f9; }
+.navItem.active .navBadge { color: #fff; background: #2563eb; }
+.railFoot { margin-top: auto; padding-top: 1rem; display: flex; align-items: center; gap: .45rem; border-top: 1px solid rgba(255,255,255,.08); }
+.homeLink { display: flex; align-items: center; gap: .5rem; flex: 1; padding: .5rem .65rem; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; color: #cbd5e1; font-size: .78rem; font-weight: 600; text-decoration: none; background: rgba(255,255,255,.03); transition: all 140ms ease-in-out; }
+.homeLink:hover { color: #fff; background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+.railLogout { display: inline-flex; align-items: center; justify-content: center; width: 2.15rem; height: 2.15rem; padding: 0; border: 1px solid rgba(239,68,68,.25); border-radius: .5rem; color: #fca5a5; background: rgba(239,68,68,.08); cursor: pointer; transition: all 140ms ease-in-out; }
+.railLogout:hover { color: #fff; background: rgba(239,68,68,.25); border-color: rgba(239,68,68,.55); }
+
+/* ---- Main + topbar ------------------------------------------------------- */
+.main { min-width: 0; display: flex; flex-direction: column; background: #f8f9ff; }
+.topBar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; min-height: 4rem; padding: .75rem clamp(1rem, 2.5vw, 2rem); border-bottom: 1px solid #e2e8f0; background: rgba(255,255,255,.95); backdrop-filter: blur(8px); }
+.headTitles { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.headBreadcrumb { display: flex; align-items: center; gap: .4rem; color: #64748b; font-size: .78rem; font-weight: 500; }
+.headTitles h1 { margin: 0; font-size: 1.35rem; font-weight: 700; color: #091426; letter-spacing: -.02em; }
+.headTitles p { max-width: 60ch; margin: 0; color: #64748b; font-size: .82rem; line-height: 1.45; }
+.headRight { display: flex; align-items: center; gap: .85rem; }
+.headActions { display: flex; align-items: center; gap: .5rem; }
+.headDivider { width: 1px; height: 1.75rem; background: #e2e8f0; }
+.headerBtn { display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .75rem; border: 1px solid #cbd5e1; border-radius: .5rem; color: #0f172a; background: #fff; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all 140ms ease; white-space: nowrap; }
+.headerBtn:hover { background: #f1f5f9; border-color: #94a3b8; }
+.userProfile { display: flex; align-items: center; gap: .65rem; }
+.userAvatar { width: 2.25rem; height: 2.25rem; border-radius: 9999px; background: #091426; color: #fff; font-size: .78rem; font-weight: 700; display: grid; place-items: center; border: 1px solid #e2e8f0; }
+.userInfo { display: flex; flex-direction: column; }
+.userName { font-size: .82rem; font-weight: 700; color: #0f172a; line-height: 1.25; }
+.userRole { font-size: .7rem; color: #64748b; line-height: 1.2; }
+.roleSwitch { display: flex; align-items: center; gap: .4rem; padding: .3rem .5rem .3rem .6rem; border: 1px dashed #94a3b8; border-radius: .5rem; background: #f8fafc; }
+.roleSwitch span { font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #64748b; }
+.roleSwitch select { padding: .25rem .4rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: .78rem; font-weight: 600; color: #0f172a; background: #fff; }
+.body { padding: 1.25rem clamp(1rem, 2.5vw, 2rem) 3rem; flex: 1; }
+
+/* ---- Cards / KPI --------------------------------------------------------- */
+.cardGrid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1rem; }
+.card { padding: 1.2rem 1.25rem; border: 1px solid #e2e8f0; border-radius: .85rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.cardMd { grid-column: span 2; } .cardLg { grid-column: span 3; } .cardXl { grid-column: span 4; }
+.cardTitle { margin: 0 0 .6rem; color: #64748b; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.kpi { display: flex; align-items: flex-end; justify-content: space-between; gap: .5rem; }
+.kpiValue { font-size: 2rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: #0f172a; }
+.kpiValue.danger { color: #b91c1c; } .kpiValue.warn { color: #b45309; } .kpiValue.ok { color: #15803d; } .kpiValue.info { color: #6d28d9; }
+.kpiFoot { margin: .55rem 0 0; font-size: .76rem; color: #64748b; }
+.kpiIcon { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border-radius: .7rem; background: #eff6ff; color: #2563eb; }
+.kpiIcon.danger { background: #fef2f2; color: #b91c1c; } .kpiIcon.warn { background: #fffbeb; color: #b45309; } .kpiIcon.info { background: #f5f3ff; color: #6d28d9; }
+.card.clickableCard { cursor: pointer; transition: all 140ms ease; }
+.card.clickableCard:hover { border-color: #8fb0ed; transform: translateY(-2px); }
+.card.selectedCard { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+
+/* ---- Split master-detail 16:9 ------------------------------------------- */
+.split { display: grid; grid-template-columns: minmax(0, 43fr) minmax(0, 57fr); gap: 1rem; align-items: start; }
+.pane { display: flex; flex-direction: column; min-width: 0; max-height: calc(100vh - 9.5rem); border: 1px solid #e2e8f0; border-radius: .85rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+.paneScroll { overflow-y: auto; flex: 1; }
+.paneHead { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .7rem .85rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc; flex-wrap: wrap; }
+.paneTitle { margin: 0; font-size: .92rem; font-weight: 700; color: #0f172a; }
+
+/* ---- Toolbar trong ô góc bảng ------------------------------------------- */
+.toolbar { display: flex; align-items: center; gap: .45rem; flex: 1; flex-wrap: wrap; }
+.search { flex: 1; min-width: 7rem; display: flex; align-items: center; gap: .35rem; padding: .3rem .55rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+.search input { flex: 1; min-width: 0; border: 0; outline: 0; font-size: .8rem; color: #0f172a; background: transparent; }
+select.filter { padding: .3rem .5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: .78rem; color: #334155; background: #fff; max-width: 10rem; }
+
+/* ---- Buttons ------------------------------------------------------------- */
+.btn { display: inline-flex; align-items: center; gap: .35rem; padding: .34rem .7rem; border-radius: 4px; border: 1px solid transparent; font-size: .8rem; font-weight: 700; cursor: pointer; transition: all 140ms ease; white-space: nowrap; }
+.btn-primary { background: #2563eb; color: #fff !important; box-shadow: 0 1px 3px rgba(37,99,235,.2); }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+.btn-ghost { background: transparent; border-color: #d1d5db; color: #4b5563; }
+.btn-ghost:hover { background: #f1f5f9; }
+.btn-danger { background: transparent; border-color: #fca5a5; color: #b91c1c; }
+.btn-danger:hover { background: #fef2f2; }
+.btn-xs { padding: .22rem .5rem; font-size: .74rem; }
+.btn[disabled], .btn.isDisabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+.iconBtn { display: inline-grid; place-items: center; width: 1.9rem; height: 1.9rem; border: 1px solid #e2e8f0; border-radius: .45rem; background: #fff; color: #64748b; cursor: pointer; transition: all 140ms ease; }
+.iconBtn:hover { background: #f1f5f9; color: #0f172a; }
+
+/* ---- Bảng 3 vùng --------------------------------------------------------- */
+.tableWrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: .88rem; }
+table.data th { padding: .6rem .85rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: #475569; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+table.data td { padding: .65rem .85rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+table.data tbody tr { cursor: pointer; }
+table.data tbody tr:hover td { background: #f8fafc; }
+table.data tbody tr.rowActive td { background: #eff6ff; box-shadow: inset 3px 0 0 #2563eb; }
+table.data tbody tr:last-child td { border-bottom: 0; }
+.code { font-weight: 700; color: #2563eb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82rem; }
+.sub { display: block; margin-top: .15rem; color: #64748b; font-size: .76rem; font-weight: 400; }
+.numeric { font-variant-numeric: tabular-nums; }
+.right { text-align: right; }
+.actionCell { display: flex; gap: .35rem; align-items: center; }
+.pagerRow { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 10px 14px; border-top: 1px solid #e2e8f0; background: #f8fafc; font-size: 12px; color: #64748b; flex-wrap: wrap; }
+.pagerLeft { display: flex; align-items: center; gap: .5rem; }
+.pagerRight { display: flex; align-items: center; gap: .5rem; }
+.pagerBtn { padding: 4px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #334155; font-size: 12px; cursor: pointer; }
+.pagerBtn:hover { border-color: #2563eb; }
+.pagerNow { font-weight: 700; color: #0f172a; }
+.pageSize { padding: 2px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11.5px; }
+
+/* ---- Badges -------------------------------------------------------------- */
+.badge { display: inline-flex; align-items: center; gap: .25rem; padding: .12rem .5rem; border-radius: 999px; font-size: .72rem; font-weight: 700; border: 1px solid transparent; white-space: nowrap; }
+.b-todo { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+.b-progress { background: #eff6ff; color: #1d4ed8; border-color: #dbeafe; }
+.b-blocked { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.b-review { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+.b-done { background: #ecfdf5; color: #15803d; border-color: #bbf7d0; }
+.b-cancel { background: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; }
+.b-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+.b-urgent { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.b-high { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+.b-normal { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+.b-low { background: #f8fafc; color: #94a3b8; border-color: #e2e8f0; }
+.overdueTxt { color: #b91c1c; font-weight: 700; }
+
+/* ---- Progress ------------------------------------------------------------ */
+.bar { position: relative; height: 6px; border-radius: 999px; background: #e9eef8; overflow: hidden; min-width: 4rem; }
+.bar > i { position: absolute; inset: 0 auto 0 0; display: block; border-radius: 999px; background: #2563eb; }
+.bar > i.ok { background: #15803d; } .bar > i.warn { background: #d97706; } .bar > i.danger { background: #b91c1c; }
+.barRow { display: flex; align-items: center; gap: .5rem; }
+.barRow b { font-size: .78rem; font-variant-numeric: tabular-nums; min-width: 2.4rem; text-align: right; }
+
+/* ---- Empty / section ------------------------------------------------------ */
+.empty { padding: 2.5rem; border: 1px dashed #cbd5e1; border-radius: .85rem; color: #64748b; font-size: .88rem; text-align: center; background: #fff; }
+.sectionTitle { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin: 1.4rem 0 .7rem; }
+.sectionTitle h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+.muted { color: #64748b; font-size: .8rem; }
+
+/* ---- My Work list -------------------------------------------------------- */
+.groupLabel { display: flex; align-items: center; gap: .5rem; padding: .75rem .85rem .4rem; color: #64748b; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.groupLabel .count { padding: .05rem .4rem; border-radius: 999px; background: #e2e8f0; color: #475569; font-size: .7rem; }
+.groupLabel.danger { color: #b91c1c; } .groupLabel.danger .count { background: #fee2e2; color: #b91c1c; }
+.taskRow { display: flex; gap: .7rem; align-items: flex-start; padding: .65rem .85rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+.taskRow:hover { background: #f8fafc; }
+.taskRow.rowActive { background: #eff6ff; box-shadow: inset 3px 0 0 #2563eb; }
+.taskMain { flex: 1; min-width: 0; }
+.taskTitle { font-size: .88rem; font-weight: 600; color: #0f172a; }
+.taskMeta { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .3rem; font-size: .75rem; color: #64748b; }
+.avatar { width: 1.6rem; height: 1.6rem; border-radius: 999px; display: grid; place-items: center; background: #e2e8f0; color: #334155; font-size: .68rem; font-weight: 700; flex: none; }
+
+/* ---- Detail panel -------------------------------------------------------- */
+.detailHead { padding: 1rem 1.1rem; border-bottom: 1px solid #e2e8f0; }
+.detailHead h3 { margin: .25rem 0 .4rem; font-size: 1.1rem; font-weight: 700; color: #0f172a; }
+.detailBody { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 1.1rem; }
+.fieldGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .9rem; }
+.fieldGrid span { display: block; color: #64748b; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.fieldGrid strong { display: block; margin-top: .2rem; font-size: .88rem; color: #0f172a; font-weight: 600; }
+.blockTitle { margin: 0 0 .5rem; font-size: .78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .04em; }
+.miniList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
+.miniList li { display: flex; gap: .55rem; align-items: center; padding: .45rem .6rem; border: 1px solid #e5ebf4; border-radius: .5rem; background: #fff; font-size: .82rem; }
+.extCard { display: flex; gap: .6rem; align-items: center; padding: .55rem .65rem; border: 1px solid #e5ebf4; border-radius: .5rem; background: #fff; }
+.extCard.degraded { background: #f8fafc; border-style: dashed; color: #94a3b8; }
+.extBadge { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: .45rem; font-size: .65rem; font-weight: 800; flex: none; }
+.ext-mt { background: #fff7ed; color: #c2410c; } .ext-pe { background: #f5f3ff; color: #6d28d9; }
+.ext-iv { background: #ecfeff; color: #0e7490; } .ext-crm { background: #fdf2f8; color: #be185d; }
+
+/* ---- Kanban -------------------------------------------------------------- */
+.kanban { display: grid; grid-template-columns: repeat(6, minmax(11rem, 1fr)); gap: .7rem; overflow-x: auto; padding-bottom: .5rem; }
+.kanCol { display: flex; flex-direction: column; min-width: 0; border: 1px solid #e2e8f0; border-radius: .7rem; background: #f8fafc; }
+.kanHead { display: flex; align-items: center; justify-content: space-between; gap: .4rem; padding: .55rem .65rem; border-bottom: 1px solid #e2e8f0; font-size: .75rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .04em; }
+.kanBody { display: flex; flex-direction: column; gap: .45rem; padding: .55rem; min-height: 5rem; }
+.kanCard { padding: .55rem .6rem; border: 1px solid #e2e8f0; border-radius: .5rem; background: #fff; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+.kanCard:hover { border-color: #8fb0ed; }
+.kanCard .t { font-size: .82rem; font-weight: 600; color: #0f172a; }
+.kanCard .m { display: flex; gap: .35rem; align-items: center; margin-top: .4rem; flex-wrap: wrap; }
+
+/* ---- Tree (WBS + thư mục) ------------------------------------------------ */
+.tree { list-style: none; margin: 0; padding: .35rem; }
+.tree ul { list-style: none; margin: 0; padding-left: .95rem; border-left: 1px dashed #e2e8f0; }
+.node { display: flex; gap: .45rem; align-items: center; padding: .35rem .5rem; border-radius: .4rem; cursor: pointer; font-size: .84rem; }
+.node:hover { background: #f1f5f9; }
+.node.active { background: #eff6ff; box-shadow: inset 3px 0 0 #2563eb; font-weight: 600; }
+.twisty { width: 1rem; display: grid; place-items: center; color: #94a3b8; flex: none; }
+.node .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Calendar ------------------------------------------------------------ */
+.calGrid { display: grid; grid-template-columns: 3.5rem repeat(7, minmax(0,1fr)); border-top: 1px solid #e2e8f0; }
+.calHeadCell { padding: .5rem .4rem; border-right: 1px solid #f1f5f9; border-bottom: 1px solid #e2e8f0; background: #f8fafc; text-align: center; font-size: .75rem; font-weight: 700; color: #475569; }
+.calHeadCell.today { background: #eff6ff; color: #1d4ed8; }
+.calHeadCell small { display: block; font-weight: 500; color: #94a3b8; font-size: .68rem; }
+.calCol { position: relative; border-right: 1px solid #f1f5f9; min-height: 480px; }
+.calTime { border-right: 1px solid #e2e8f0; }
+.calSlot { height: 40px; border-bottom: 1px solid #f1f5f9; }
+.calHour { height: 40px; border-bottom: 1px solid #f1f5f9; font-size: .68rem; color: #94a3b8; text-align: right; padding: .1rem .4rem 0 0; }
+.calEvent { position: absolute; left: 3px; right: 3px; padding: .25rem .4rem; border-radius: .35rem; font-size: .72rem; line-height: 1.25; cursor: pointer; overflow: hidden; border-left: 3px solid; }
+.calEvent b { display: block; font-weight: 700; }
+.ev-meeting { background: #eff6ff; border-color: #2563eb; color: #1e3a8a; }
+.ev-deadline { background: #fef2f2; border-color: #b91c1c; color: #7f1d1d; }
+.ev-task { background: #ecfdf5; border-color: #15803d; color: #14532d; }
+.ev-other { background: #f5f3ff; border-color: #6d28d9; color: #4c1d95; }
+.ev-busy { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 6px, #e2e8f0 6px, #e2e8f0 12px); border-color: #94a3b8; color: #64748b; }
+
+/* ---- Charts -------------------------------------------------------------- */
+.bars { display: flex; flex-direction: column; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.bars li { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
+.bars .who { width: 9rem; flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #334155; font-weight: 500; }
+.bars .track { flex: 1; display: flex; height: 16px; border-radius: 4px; overflow: hidden; background: #f1f5f9; }
+.bars .seg { height: 100%; }
+.s-urgent { background: #b91c1c; } .s-high { background: #ea580c; } .s-normal { background: #2563eb; } .s-low { background: #94a3b8; }
+.bars .tot { width: 2rem; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: #0f172a; }
+.legend { display: flex; flex-wrap: wrap; gap: .75rem; margin: .75rem 0 0; padding: 0; list-style: none; font-size: .75rem; color: #475569; }
+.legend li { display: flex; align-items: center; gap: .35rem; }
+.legendDot { width: 8px; height: 8px; border-radius: 999px; }
+.donutWrap { display: flex; align-items: center; gap: 1rem; }
+.donutTotal { font-size: 22px; font-weight: 800; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+.donutUnit { font-size: 9px; font-weight: 600; fill: #64748b; text-anchor: middle; dominant-baseline: central; }
+
+/* ---- Drawer -------------------------------------------------------------- */
+.backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.45); backdrop-filter: blur(4px); }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 61; width: min(660px, 100vw); display: flex; flex-direction: column; background: #fff; box-shadow: -8px 0 32px rgba(15,23,42,.18); animation: slideIn .22s cubic-bezier(.16,1,.3,1); }
+@keyframes slideIn { from { transform: translateX(24px); opacity: .4; } to { transform: none; opacity: 1; } }
+.drawerHead { padding: .9rem 1.1rem .1rem; border-bottom: 1px solid #e2e8f0; }
+.drawerTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.drawerTop h3 { margin: .3rem 0 .1rem; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+.drawerTabs { display: flex; gap: .25rem; margin-top: .7rem; }
+.drawerTab { padding: .45rem .7rem; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #64748b; font-size: .82rem; font-weight: 600; cursor: pointer; }
+.drawerTab:hover { color: #0f172a; }
+.drawerTab.active { color: #1d4ed8; border-bottom-color: #2563eb; }
+.drawerBody { flex: 1; overflow-y: auto; padding: 1rem 1.1rem; }
+.drawerFoot { padding: .75rem 1.1rem; border-top: 1px solid #e2e8f0; background: #f8fafc; }
+.comment { display: flex; gap: .65rem; padding: .6rem 0; border-bottom: 1px solid #f1f5f9; }
+.comment.reply { padding-left: 2.25rem; }
+.comment .cHead { display: flex; gap: .5rem; align-items: baseline; }
+.comment .cName { font-size: .82rem; font-weight: 700; color: #0f172a; }
+.comment .cTime { font-size: .72rem; color: #94a3b8; }
+.comment .cBody { margin: .25rem 0 0; font-size: .85rem; line-height: 1.5; color: #1e293b; }
+.comment .cActs { display: flex; gap: .5rem; margin-top: .35rem; }
+.comment .cActs button { border: 0; background: transparent; color: #64748b; font-size: .74rem; font-weight: 600; cursor: pointer; padding: 0; }
+.comment .cActs button:hover { color: #2563eb; }
+.mention { color: #1d4ed8; font-weight: 700; background: #eff6ff; border-radius: 4px; padding: 0 .2rem; }
+.composer { display: flex; flex-direction: column; gap: .5rem; }
+.composer textarea { width: 100%; min-height: 4.5rem; padding: .55rem .65rem; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; font-size: .85rem; resize: vertical; outline: 0; }
+.composer textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+.composerBar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+
+/* ---- Dialog (MinimalPopupForm) ------------------------------------------ */
+.dialog { position: fixed; z-index: 61; top: 50%; left: 50%; transform: translate(-50%,-50%); width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 64px); overflow-y: auto; padding: 24px; border-radius: 8px; background: #f5f5f5; box-shadow: 0 4px 12px rgba(0,0,0,.1); animation: pop .2s cubic-bezier(.16,1,.3,1); }
+@keyframes pop { from { transform: translate(-50%,-50%) scale(.97); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+.dialog h2 { margin: 0; font-size: 26px; font-weight: 700; color: #333; letter-spacing: -.02em; }
+.dialogSub { margin: .35rem 0 0; font-size: 13.5px; color: #666; line-height: 1.4; }
+.dialogClose { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 4px; background: transparent; color: #666; cursor: pointer; }
+.dialogClose:hover { background: #e5e5e5; }
+.formGrid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 18px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 14px; font-weight: 600; color: #333; }
+.field input, .field select, .field textarea { height: 40px; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 4px; font: inherit; font-size: 15px; color: #333; background: #fff; outline: 0; }
+.field textarea { height: auto; min-height: 76px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.15); }
+.fieldHint { font-size: 12px; color: #64748b; }
+.fieldErr { font-size: 12px; color: #b91c1c; font-weight: 600; }
+.field.invalid input, .field.invalid select { border-color: #b91c1c; }
+.formActions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+.dropzone { display: grid; place-items: center; gap: .3rem; padding: 1.5rem; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; color: #64748b; font-size: .85rem; text-align: center; }
+
+/* ---- Popconfirm ---------------------------------------------------------- */
+.popconfirm { position: fixed; z-index: 70; width: 268px; padding: .75rem .8rem; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.16); }
+.popconfirm .pcHead { display: flex; gap: .45rem; align-items: flex-start; }
+.popconfirm .pcTitle { font-size: .85rem; font-weight: 700; color: #0f172a; }
+.popconfirm .pcDesc { margin: .3rem 0 0; font-size: .78rem; color: #64748b; line-height: 1.45; }
+.popconfirm label { display: block; margin: .55rem 0 .25rem; font-size: .74rem; font-weight: 600; color: #334155; }
+.popconfirm input { width: 100%; height: 32px; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font: inherit; font-size: .8rem; outline: 0; }
+.popconfirm input:focus { border-color: #2563eb; }
+.pcActions { display: flex; justify-content: flex-end; gap: .4rem; margin-top: .65rem; }
+
+/* ---- Toast --------------------------------------------------------------- */
+.toastWrap { position: fixed; z-index: 90; right: 1.25rem; bottom: 1.25rem; display: flex; flex-direction: column; gap: .5rem; }
+.toast { display: flex; gap: .55rem; align-items: flex-start; min-width: 16rem; max-width: 24rem; padding: .7rem .85rem; border: 1px solid #e2e8f0; border-radius: .6rem; background: #fff; box-shadow: 0 8px 24px rgba(15,23,42,.14); font-size: .84rem; animation: pop .2s ease; }
+.toast.ok { border-left: 3px solid #15803d; } .toast.err { border-left: 3px solid #b91c1c; } .toast.warn { border-left: 3px solid #d97706; }
+.toast .tTitle { font-weight: 700; color: #0f172a; }
+.toast .tDesc { margin: .15rem 0 0; color: #64748b; font-size: .78rem; }
+
+/* ---- Notice banner ------------------------------------------------------- */
+.notice { display: flex; gap: .6rem; align-items: flex-start; padding: .7rem .85rem; border: 1px solid #fde68a; border-radius: .6rem; background: #fffbeb; color: #78350f; font-size: .82rem; line-height: 1.5; }
+.notice.info { border-color: #dbeafe; background: #eff6ff; color: #1e3a8a; }
+
+@media (max-width: 1180px) { .cardGrid { grid-template-columns: repeat(2, minmax(0,1fr)); } .split { grid-template-columns: minmax(0,1fr); } .pane { max-height: none; } }
+@media (max-width: 860px) { .shell { grid-template-columns: 1fr; } .rail { position: static; height: auto; width: auto; } .cardGrid { grid-template-columns: 1fr; } .formGrid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- ======================= RAIL SIDEBAR ======================= -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="brandLogo">WS</div>
+      <div class="brandText">
+        <p class="brandTitle">Workspace</p>
+        <p class="brandSubtitle">Savina · Không gian làm việc</p>
+      </div>
+    </div>
+
+    <nav class="railNav" id="railNav"></nav>
+
+    <div class="railFoot">
+      <a class="homeLink" href="#" onclick="return false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Trang chủ
+      </a>
+      <button class="railLogout" title="Đăng xuất" onclick="toast('warn','Đây là bản mockup','Chức năng đăng xuất không hoạt động.')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <div class="main">
+    <header class="topBar">
+      <div class="headTitles">
+        <div class="headBreadcrumb"><span>Savina</span><span>›</span><span>Workspace</span><span>›</span><span id="crumb">Công việc của tôi</span></div>
+        <h1 id="viewTitle">Công việc của tôi</h1>
+      </div>
+      <div class="headRight">
+        <div class="roleSwitch" title="Đổi vai trò để xem phân quyền thay đổi thế nào">
+          <span>Vai trò</span>
+          <select id="roleSelect" onchange="setRole(this.value)">
+            <option value="owner">Chủ nhiệm dự án</option>
+            <option value="manager">Quản lý dự án</option>
+            <option value="member" selected>Thành viên</option>
+            <option value="viewer">Chỉ đọc</option>
+            <option value="tenant-admin">Quản trị tenant</option>
+          </select>
+        </div>
+        <div class="headDivider"></div>
+        <div class="headActions" id="headActions"></div>
+        <div class="headDivider"></div>
+        <div class="userProfile">
+          <div class="userAvatar" id="userAvatar">TK</div>
+          <div class="userInfo">
+            <span class="userName">Trần Quốc Khánh</span>
+            <span class="userRole" id="userRoleLabel">Thành viên dự án</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body" id="viewBody"></div>
+  </div>
+</div>
+
+<div class="toastWrap" id="toastWrap"></div>
+<div id="overlayRoot"></div>
+
+<script>
+/* =========================================================================
+   DỮ LIỆU MẪU — phản ánh đúng schema ở db/*.md
+   ========================================================================= */
+const ME = { id: 'u1', name: 'Trần Quốc Khánh', initials: 'TK' };
+
+const USERS = {
+  u1: { name: 'Trần Quốc Khánh', i: 'TK' },
+  u2: { name: 'Nguyễn Thị Mai',  i: 'NM' },
+  u3: { name: 'Lê Văn Hùng',     i: 'LH' },
+  u4: { name: 'Phạm Minh Tuấn',  i: 'PT' },
+  u5: { name: 'Đỗ Thu Hà',       i: 'DH' },
+};
+
+const PROJECTS = [
+  { id:'p1', code:'DA-2026-001', name:'Triển khai ERP Savina giai đoạn 2', owner:'u1', unit:'Khối Công nghệ thông tin', status:'active',    start:'2026-01-05', end:'2026-12-31', progress:62, done:18, total:29, overdue:2 },
+  { id:'p2', code:'DA-2026-004', name:'Nâng cấp hệ thống kho Bình Dương',  owner:'u3', unit:'Khối Vận hành',            status:'active',    start:'2026-03-01', end:'2026-10-15', progress:38, done:7,  total:19, overdue:3 },
+  { id:'p3', code:'DA-2026-007', name:'Chuẩn hoá quy trình ISO 9001',      owner:'u2', unit:'Ban Chất lượng',           status:'planning',  start:'2026-09-01', end:'2027-03-31', progress:8,  done:1,  total:12, overdue:0 },
+  { id:'p4', code:'DA-2025-012', name:'Số hoá hồ sơ nhân sự',              owner:'u5', unit:'Khối Hành chính Nhân sự',  status:'on_hold',   start:'2025-06-01', end:'2026-06-30', progress:71, done:22, total:31, overdue:1 },
+  { id:'p5', code:'DA-2025-003', name:'Bảo trì phòng ngừa nhà máy A',      owner:'u4', unit:'Khối Vận hành',            status:'completed', start:'2025-02-01', end:'2025-12-20', progress:100,done:44, total:44, overdue:0 },
+];
+
+/* Cây WBS của DA-2026-001 — parent_id + sort_order + depth, đúng bảng work_items */
+const WORK_ITEMS = [
+  { id:'w1',  parent:null, code:'WBS-1',   title:'Khảo sát và phân tích',        type:'phase',     status:'done',        prio:'normal', assignee:'u2', end:'2026-03-31', est:120, prog:100 },
+  { id:'w11', parent:'w1', code:'WBS-1.1', title:'Phỏng vấn nghiệp vụ 6 khối',   type:'task',      status:'done',        prio:'high',   assignee:'u2', end:'2026-02-28', est:48,  prog:100 },
+  { id:'w12', parent:'w1', code:'WBS-1.2', title:'Lập báo cáo hiện trạng',       type:'task',      status:'done',        prio:'normal', assignee:'u5', end:'2026-03-31', est:32,  prog:100 },
+  { id:'w2',  parent:null, code:'WBS-2',   title:'Thiết kế hệ thống',            type:'phase',     status:'in_progress', prio:'high',   assignee:null, end:'2026-07-31', est:260, prog:74 },
+  { id:'w21', parent:'w2', code:'WBS-2.1', title:'Thiết kế CSDL đa tenant',      type:'task',      status:'done',        prio:'urgent', assignee:'u1', end:'2026-05-30', est:80,  prog:100 },
+  { id:'w22', parent:'w2', code:'WBS-2.2', title:'Thiết kế phân quyền RBAC',     type:'task',      status:'review',      prio:'urgent', assignee:'u1', end:'2026-09-12', est:64,  prog:85 },
+  { id:'w23', parent:'w2', code:'WBS-2.3', title:'Thiết kế giao diện 6 màn hình',type:'task',      status:'in_progress', prio:'high',   assignee:'u1', end:'2026-09-20', est:72,  prog:45 },
+  { id:'w24', parent:'w2', code:'WBS-2.4', title:'Chốt kiến trúc tích hợp',      type:'milestone', status:'todo',        prio:'high',   assignee:'u3', end:'2026-09-30', est:null,prog:0  },
+  { id:'w3',  parent:null, code:'WBS-3',   title:'Xây dựng và kiểm thử',         type:'phase',     status:'todo',        prio:'normal', assignee:null, end:'2026-11-30', est:480, prog:5  },
+  { id:'w31', parent:'w3', code:'WBS-3.1', title:'Dựng khung module Workspace',  type:'task',      status:'blocked',     prio:'urgent', assignee:'u1', end:'2026-09-08', est:96,  prog:10 },
+  { id:'w32', parent:'w3', code:'WBS-3.2', title:'Viết kiểm thử tự động',        type:'task',      status:'todo',        prio:'normal', assignee:'u4', end:'2026-10-31', est:120, prog:0  },
+  { id:'w33', parent:'w3', code:'WBS-3.3', title:'Chuyển dữ liệu thử',           type:'task',      status:'todo',        prio:'low',    assignee:'u3', end:'2026-11-15', est:64,  prog:0  },
+];
+
+const DEPENDENCIES = [ { pre:'w22', suc:'w23', type:'FS' }, { pre:'w23', suc:'w31', type:'FS' }, { pre:'w21', suc:'w22', type:'FS' } ];
+
+const FOLDERS = [
+  { id:'f1', parent:null, name:'01. Hồ sơ pháp lý' },
+  { id:'f2', parent:null, name:'02. Tài liệu thiết kế' },
+  { id:'f21',parent:'f2', name:'Cơ sở dữ liệu' },
+  { id:'f22',parent:'f2', name:'Giao diện' },
+  { id:'f3', parent:null, name:'03. Biên bản họp' },
+  { id:'f4', parent:null, name:'04. Nghiệm thu' },
+];
+
+const DOCUMENTS = [
+  { id:'d1', folder:'f21', name:'Thiết kế CSDL Workspace', ver:4, size:'2.4 MB', type:'PDF', by:'u1', at:'16/09/2026 09:20', status:'active', lockedBy:null },
+  { id:'d2', folder:'f21', name:'Từ điển dữ liệu v2',      ver:2, size:'845 KB', type:'XLSX',by:'u2', at:'14/09/2026 16:05', status:'active', lockedBy:'u2' },
+  { id:'d3', folder:'f22', name:'Wireframe 6 màn hình',     ver:7, size:'12.1 MB',type:'PDF', by:'u1', at:'15/09/2026 11:42', status:'active', lockedBy:null },
+  { id:'d4', folder:'f22', name:'Bộ icon và bảng màu',      ver:1, size:'3.8 MB', type:'ZIP', by:'u5', at:'02/09/2026 08:15', status:'active', lockedBy:null },
+  { id:'d5', folder:'f3',  name:'BB họp chốt phạm vi',      ver:1, size:'420 KB', type:'DOCX',by:'u3', at:'28/08/2026 14:00', status:'active', lockedBy:null },
+  { id:'d6', folder:'f1',  name:'Hợp đồng khung (đã lưu trữ)', ver:3, size:'1.1 MB', type:'PDF', by:'u3', at:'10/01/2026 10:00', status:'archived', lockedBy:null },
+];
+
+const VERSIONS = {
+  d1: [
+    { v:4, name:'thiet-ke-csdl-workspace-v4.pdf', size:'2.4 MB', by:'u1', at:'16/09/2026 09:20', note:'Bỏ bảng worklogs, chấm công chuyển sang module khác' },
+    { v:3, name:'thiet-ke-csdl-workspace-v3.pdf', size:'2.3 MB', by:'u1', at:'12/09/2026 15:30', note:'Bổ sung bảng external_references' },
+    { v:2, name:'thiet-ke-csdl-workspace-v2.pdf', size:'2.1 MB', by:'u2', at:'08/09/2026 10:10', note:'Sửa ràng buộc UNIQUE trên document_versions' },
+    { v:1, name:'thiet-ke-csdl-workspace-v1.pdf', size:'1.9 MB', by:'u1', at:'01/09/2026 09:00', note:'Bản khởi tạo' },
+  ]
+};
+
+/* Sự kiện: giờ bắt đầu, số giờ, cột thứ trong tuần (0 = Thứ 2) */
+const EVENTS = [
+  { id:'e1', d:0, h:9,    len:1.5, title:'Họp chốt thiết kế CSDL',   type:'meeting',  room:'P.301', people:['u1','u2','u3'], resp:'accepted' },
+  { id:'e2', d:0, h:14,   len:1,   title:'Review phân quyền',        type:'meeting',  room:'P.205', people:['u1','u4'],      resp:'needs_action' },
+  { id:'e3', d:1, h:10,   len:1,   title:'Standup nhóm dự án',       type:'meeting',  room:null,    people:['u1','u2','u3','u4'], resp:'accepted', rrule:'Hằng tuần' },
+  { id:'e4', d:2, h:8.5,  len:2,   title:'Nghiệm thu giao diện',     type:'meeting',  room:'P.301', people:['u1','u5'],      resp:'tentative' },
+  { id:'e5', d:2, h:15,   len:1,   title:'Hạn nộp WBS-2.3',          type:'deadline', room:null,    people:['u1'],           resp:'accepted' },
+  { id:'e6', d:3, h:9,    len:3,   title:'Workshop kiến trúc tích hợp', type:'task',  room:'Hội trường A', people:['u1','u2','u3','u4','u5'], resp:'accepted' },
+  { id:'e7', d:4, h:13.5, len:1.5, title:'Họp giao ban khối CNTT',   type:'other',    room:'P.205', people:['u1','u3'],      resp:'declined' },
+  { id:'e8', d:1, h:14,   len:2,   title:'Bận',                      type:'busy',     room:null,    people:[],               resp:null },
+];
+
+const COMMENTS = [
+  { id:'c1', by:'u2', at:'3 giờ trước', body:'Phần thiết kế phân quyền đã cập nhật theo báo cáo mới. @Trần Quốc Khánh xem giúp mục 5.2 nhé.', mentionsMe:true, replies:[
+      { id:'c1r1', by:'u1', at:'2 giờ trước', body:'Đã xem. Chỗ đảo thứ tự đọc coreUser trong decideTenantCoreSession là bắt buộc, không thì chưa có system_role lúc tính quyền.' }
+  ]},
+  { id:'c2', by:'u3', at:'hôm qua', body:'Nhắc cả nhóm: WBS-3.1 đang bị chặn vì phụ thuộc FS vào WBS-2.3. Cần chốt giao diện trước.', mentionsMe:false, replies:[] },
+  { id:'c3', by:'u1', at:'2 ngày trước', body:'Đã gỡ bảng worklogs khỏi phạm vi. Chấm công thuộc module khác, bên này chỉ hiển thị qua external_references.', mentionsMe:false, replies:[], edited:true },
+];
+
+const EXTERNAL_REFS = [
+  { module:'maintenance',      cls:'ext-mt',  abbr:'MT',  code:'WO-2026-0912', label:'Bảo trì máy chủ ứng dụng',       status:'Đang thực hiện', ok:true },
+  { module:'procedure-engine', cls:'ext-pe',  abbr:'PE',  code:'QT-2026-0455', label:'Phiếu duyệt thay đổi thiết kế',  status:'Chờ duyệt',      ok:true },
+  { module:'inventory',        cls:'ext-iv',  abbr:'IV',  code:'YC-2026-1180', label:'Yêu cầu cấp 5 máy trạm',         status:null,             ok:false },
+];
+
+const MODULE_NAME = { maintenance:'Bảo trì', 'procedure-engine':'Quy trình', inventory:'Kho vật tư', crm:'CRM' };
+
+/* =========================================================================
+   PHÂN QUYỀN — ma trận mục 2 của bao-cao_role-phan-quyen
+   ========================================================================= */
+let ROLE = 'member';
+const ROLE_LABEL = { owner:'Chủ nhiệm dự án', manager:'Quản lý dự án', member:'Thành viên dự án', viewer:'Chỉ đọc', 'tenant-admin':'Quản trị tenant' };
+
+const MATRIX = {
+  'project.create':        ['owner','manager','member','viewer','tenant-admin'],
+  'project.edit':          ['owner','manager','tenant-admin'],
+  'project.members':       ['owner','manager','tenant-admin'],
+  'project.transferOwner': ['owner','tenant-admin'],
+  'project.cancel':        ['owner','tenant-admin'],
+  'task.create':           ['owner','manager','member','tenant-admin'],
+  'task.editOwn':          ['owner','manager','member','tenant-admin'],
+  'task.editOthers':       ['owner','manager','tenant-admin'],
+  'task.assign':           ['owner','manager','tenant-admin'],
+  'task.moveWbs':          ['owner','manager','tenant-admin'],
+  'task.dependencies':     ['owner','manager','tenant-admin'],
+  'task.cancel':           ['owner','manager','tenant-admin'],
+  'doc.upload':            ['owner','manager','member','tenant-admin'],
+  'doc.download':          ['owner','manager','member','viewer','tenant-admin'],
+  'doc.lock':              ['owner','manager','member','tenant-admin'],
+  'doc.unlockOthers':      ['owner','manager','tenant-admin'],
+  'doc.archive':           ['owner','manager','tenant-admin'],
+  'comment.write':         ['owner','manager','member','tenant-admin'],
+  'comment.deleteOthers':  ['owner','manager','tenant-admin'],
+  'event.create':          ['owner','manager','member','viewer','tenant-admin'],
+  'event.editOwn':         ['owner','manager','member','viewer','tenant-admin'],
+  'event.respond':         ['owner','manager','member','viewer','tenant-admin'],
+  'resource.manage':       ['tenant-admin'],
+  'report.export':         ['owner','manager','tenant-admin'],
+  'report.allPeople':      ['owner','manager','tenant-admin'],
+  'ext.link':              ['owner','manager','member','tenant-admin'],
+};
+function can(action) { return (MATRIX[action] || []).includes(ROLE); }
+
+/* Ẩn hoặc làm mờ theo đúng quy ước: Ẩn = không render; Mờ = render + tooltip */
+function gate(action, html, mode, why) {
+  if (can(action)) return html;
+  if (mode === 'dim') return html.replace('class="', 'title="' + (why || 'Bạn không có quyền thực hiện thao tác này') + '" class="isDisabled ');
+  return '';
+}
+
+/* =========================================================================
+   ICONS
+   ========================================================================= */
+const I = {
+  inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/>',
+  check:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  alert:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+  msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  paperclip:'<path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l8.49-8.49a4 4 0 0 1 5.66 5.66l-8.49 8.49a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  down:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  unlock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  hist:'<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+  edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  ext:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  play:'<polygon points="5 3 19 12 5 21 5 3"/>',
+  filter:'<path d="M22 3H2l8 9.46V19l4 2v-8.54z"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+};
+function ic(n, s) { return '<svg width="'+(s||16)+'" height="'+(s||16)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+I[n]+'</svg>'; }
+
+/* =========================================================================
+   HẰNG SỐ HIỂN THỊ
+   ========================================================================= */
+const ST = {
+  todo:        { l:'Chờ làm',     c:'b-todo' },
+  in_progress: { l:'Đang làm',    c:'b-progress' },
+  blocked:     { l:'Bị chặn',     c:'b-blocked' },
+  review:      { l:'Chờ duyệt',   c:'b-review' },
+  done:        { l:'Hoàn thành',  c:'b-done' },
+  cancelled:   { l:'Đã huỷ',      c:'b-cancel' },
+};
+const PRIO = { urgent:{l:'Khẩn',c:'b-urgent'}, high:{l:'Cao',c:'b-high'}, normal:{l:'Thường',c:'b-normal'}, low:{l:'Thấp',c:'b-low'} };
+const PST = { planning:{l:'Lập kế hoạch',c:'b-review'}, active:{l:'Đang chạy',c:'b-progress'}, on_hold:{l:'Tạm dừng',c:'b-amber'}, completed:{l:'Hoàn thành',c:'b-done'}, cancelled:{l:'Đã huỷ',c:'b-cancel'} };
+const ITYPE = { phase:'Hạng mục', task:'Công việc', milestone:'Cột mốc' };
+
+const NAV = [
+  { id:'my-work',   label:'Công việc của tôi', icon:'inbox',  badge:'7' },
+  { id:'projects',  label:'Dự án',             icon:'folder', group:'Điều hành' },
+  { id:'tasks',     label:'Công việc',         icon:'check',  group:'Điều hành', badge:'12' },
+  { id:'documents', label:'Tài liệu',          icon:'file',   group:'Điều hành' },
+  { id:'calendar',  label:'Lịch biểu',         icon:'cal',    group:'Điều hành', badge:'2' },
+  { id:'dashboard', label:'Báo cáo',           icon:'chart',  group:'Quản trị' },
+];
+const TITLES = {
+  'my-work':  ['Công việc của tôi','Mọi việc đang chờ bạn, tổng hợp từ dự án, lịch và các module khác.'],
+  'projects': ['Dự án','Danh sách dự án bạn tham gia và tổng quan tiến độ.'],
+  'tasks':    ['Công việc','Cây WBS, bảng Kanban và phụ thuộc giữa các công việc.'],
+  'documents':['Tài liệu','Kho tài liệu theo dự án, có phiên bản và khoá chỉnh sửa.'],
+  'calendar': ['Lịch biểu','Lịch cá nhân, lịch đơn vị và đặt phòng họp.'],
+  'dashboard':['Báo cáo & Dashboard','Tiến độ dự án, tải công việc và công việc quá hạn.'],
+};
+
+let view = 'my-work';
+let sel = { project:'p1', task:'w22', doc:'d1', folder:'f21', myTask:'w22', taskMode:'tree' };
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* Chuỗi JS nhúng trong thuộc tính onclick="…": phải mã hoá dấu nháy kép thành
+   &quot;, nếu không nó sẽ đóng sớm thuộc tính HTML và làm hỏng handler. */
+const jsq = (s) => JSON.stringify(String(s)).replace(/"/g, '&quot;');
+const u = (id) => USERS[id] || { name:'—', i:'?' };
+const badge = (k) => '<span class="badge '+ST[k].c+'">'+ST[k].l+'</span>';
+const pbadge = (k) => '<span class="badge '+PRIO[k].c+'">'+PRIO[k].l+'</span>';
+const av = (id) => '<span class="avatar" title="'+esc(u(id).name)+'">'+u(id).i+'</span>';
+const isOverdue = (it) => ['todo','in_progress','blocked','review'].includes(it.status) && it.end < '2026-09-16';
+const children = (pid) => WORK_ITEMS.filter(w => w.parent === pid);
+const openItems = () => WORK_ITEMS.filter(w => ['todo','in_progress','blocked','review'].includes(w.status));
+const myItems = () => openItems().filter(w => w.assignee === ME.id);
+
+function bar(p) {
+  const cls = p >= 100 ? 'ok' : p >= 50 ? '' : p >= 25 ? 'warn' : 'danger';
+  return '<div class="barRow"><div class="bar"><i class="'+cls+'" style="width:'+p+'%"></i></div><b>'+p+'%</b></div>';
+}
+function pager(from, to, total, unit, page, pages) {
+  return '<div class="pagerRow"><div class="pagerLeft"><span>Hiển thị '+from+'–'+to+' / '+total+' '+unit+'</span>'
+    + '<span>· Hiển thị:</span><select class="pageSize" onchange="toast(\'ok\',\'Đã đổi số dòng\',\'Bản mockup không phân trang thật.\')"><option>15</option><option>30</option><option>45</option><option>60</option></select></div>'
+    + '<div class="pagerRight"><button class="pagerBtn" onclick="toast(\'warn\',\'Trang đầu\',\'Không còn trang trước.\')">← Trước</button>'
+    + '<span class="pagerNow">'+page+' / '+pages+'</span>'
+    + '<button class="pagerBtn" onclick="toast(\'warn\',\'Bản mockup\',\'Dữ liệu mẫu chỉ có một trang.\')">Sau →</button></div></div>';
+}
+
+/* =========================================================================
+   TOAST · DIALOG · DRAWER · POPCONFIRM
+   ========================================================================= */
+function toast(kind, title, desc) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.innerHTML = '<div><div class="tTitle">'+esc(title)+'</div>'+(desc?'<p class="tDesc">'+esc(desc)+'</p>':'')+'</div>';
+  $('#toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 3800);
+}
+function closeOverlay() { $('#overlayRoot').innerHTML = ''; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeOverlay(); closePop(); } });
+
+function openDialog(title, sub, bodyHtml, submitLabel, onSubmit) {
+  $('#overlayRoot').innerHTML =
+    '<div class="backdrop" onclick="closeOverlay()"></div>'
+    + '<div class="dialog" role="dialog" aria-modal="true">'
+    +   '<button class="dialogClose" onclick="closeOverlay()" title="Đóng (ESC)">'+ic('x',16)+'</button>'
+    +   '<h2>'+esc(title)+'</h2><p class="dialogSub">'+esc(sub)+'</p>'
+    +   '<div class="formGrid">'+bodyHtml+'</div>'
+    +   '<div class="formActions"><button class="btn btn-ghost" onclick="closeOverlay()">Huỷ</button>'
+    +   '<button class="btn btn-primary" id="dlgSubmit">'+esc(submitLabel)+'</button></div>'
+    + '</div>';
+  $('#dlgSubmit').onclick = onSubmit;
+}
+
+let drawerTab = 'comments';
+function openDrawer(ctx, tab) {
+  drawerTab = tab || 'comments';
+  const tabs = [['comments','Trao đổi'],['files','Tệp đính kèm'],['links','Liên kết'],['history','Lịch sử']];
+  $('#overlayRoot').innerHTML =
+    '<div class="backdrop" onclick="closeOverlay()"></div>'
+    + '<aside class="drawer" role="dialog" aria-modal="true">'
+    +   '<div class="drawerHead"><div class="drawerTop"><div>'
+    +     '<span class="code">'+esc(ctx.code)+'</span> '+ (ctx.status ? badge(ctx.status) : '')
+    +     '<h3>'+esc(ctx.title)+'</h3></div>'
+    +     '<button class="iconBtn" onclick="closeOverlay()" title="Đóng (ESC)">'+ic('x',15)+'</button></div>'
+    +     '<div class="drawerTabs">'+tabs.map(t => '<button class="drawerTab'+(drawerTab===t[0]?' active':'')+'" onclick="switchDrawer(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</div>'
+    +   '</div>'
+    +   '<div class="drawerBody" id="drawerBody"></div>'
+    +   '<div class="drawerFoot" id="drawerFoot"></div>'
+    + '</aside>';
+  window.__drawerCtx = ctx;
+  renderDrawer();
+}
+function switchDrawer(t) {
+  drawerTab = t;
+  document.querySelectorAll('.drawerTab').forEach((b,i) => b.classList.toggle('active', ['comments','files','links','history'][i] === t));
+  renderDrawer();
+}
+function renderDrawer() {
+  const body = $('#drawerBody'), foot = $('#drawerFoot');
+  if (!body) return;
+  if (drawerTab === 'comments') {
+    body.innerHTML = COMMENTS.map(c => commentHtml(c)).join('');
+    foot.innerHTML = can('comment.write')
+      ? '<div class="composer"><textarea placeholder="Viết bình luận… gõ @ để nhắc tên đồng nghiệp"></textarea>'
+        + '<div class="composerBar"><button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Chọn tài liệu\',\'Chỉ đính kèm tài liệu đã có trong dự án.\')">'+ic('paperclip',14)+' Đính kèm</button>'
+        + '<button class="btn btn-primary" onclick="toast(\'ok\',\'Đã gửi bình luận\',\'Ctrl+Enter cũng gửi được.\')">Gửi</button></div></div>'
+      : '<p class="muted" style="margin:0">Vai trò <b>Chỉ đọc</b> không viết được bình luận.</p>';
+  } else if (drawerTab === 'files') {
+    body.innerHTML = '<p class="blockTitle">Tài liệu đính kèm</p><ul class="miniList">'
+      + DOCUMENTS.slice(0,3).map(d => '<li>'+ic('file',15)+'<span style="flex:1">'+esc(d.name)+' <span class="sub">v'+d.ver+' · '+d.size+'</span></span>'
+      + '<button class="iconBtn" title="Tải xuống" onclick="toast(\'ok\',\'Đang tải xuống\',\'URL ký trước hạn 300 giây.\')">'+ic('down',14)+'</button></li>').join('') + '</ul>';
+    foot.innerHTML = gate('doc.upload','<button class="btn btn-ghost" onclick="toast(\'ok\',\'Chọn tài liệu\',\'Chỉ gắn tài liệu đã có trong dự án, không upload trực tiếp từ đây.\')">'+ic('plus',14)+' Gắn tài liệu</button>','hide')
+      || '<p class="muted" style="margin:0">Bạn không có quyền gắn tài liệu.</p>';
+  } else if (drawerTab === 'links') {
+    body.innerHTML = '<div class="notice info">'+ic('alert',16)+'<div>Dữ liệu dưới đây thuộc module khác và <b>chỉ đọc</b>. Muốn thay đổi, hãy mở hồ sơ tại module gốc.</div></div>'
+      + '<div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.8rem">' + EXTERNAL_REFS.map(extHtml).join('') + '</div>';
+    foot.innerHTML = gate('ext.link','<button class="btn btn-ghost" onclick="toast(\'ok\',\'Gắn hồ sơ\',\'Chỉ liệt kê module mà tenant đã bật entitlement.\')">'+ic('plus',14)+' Gắn hồ sơ</button>','hide') || '';
+  } else {
+    body.innerHTML = '<p class="blockTitle">Lịch sử chuyển trạng thái</p><ul class="miniList">'
+      + [['Chờ duyệt','Đang làm','u1','16/09/2026 08:40'],['Đang làm','Chờ làm','u1','12/09/2026 09:15'],['Chờ làm','—','u2','01/09/2026 10:00']]
+        .map(r => '<li>'+av(r[2])+'<span style="flex:1">'+esc(r[1])+' → <b>'+esc(r[0])+'</b><span class="sub">'+esc(u(r[2]).name)+' · '+r[3]+'</span></span></li>').join('')
+      + '</ul>';
+    foot.innerHTML = '<p class="muted" style="margin:0">Bảng <code>work_item_status_history</code> chỉ ghi thêm, không sửa không xoá.</p>';
+  }
+}
+function commentHtml(c) {
+  const mine = c.by === ME.id;
+  const acts = [];
+  if (mine) acts.push('<button onclick="toast(\'ok\',\'Sửa bình luận\',\'Chỉ sửa được trong 15 phút đầu.\')">Sửa</button>');
+  if (can('comment.write')) acts.push('<button onclick="toast(\'ok\',\'Trả lời\',\'Chỉ hỗ trợ trả lời một cấp.\')">Trả lời</button>');
+  if (mine || can('comment.deleteOthers')) acts.push('<button onclick="popDelete(event,\'bình luận này\',\'Nội dung sẽ bị gỡ, các trả lời vẫn được giữ.\')">Xoá</button>');
+  const body = esc(c.body).replace(/@([\p{L}\s]+?)(?=\s(?:xem|nhé)|\.|,|$)/gu, '<span class="mention">@$1</span>');
+  return '<div class="comment"><div>'+av(c.by)+'</div><div style="flex:1;min-width:0">'
+    + '<div class="cHead"><span class="cName">'+esc(u(c.by).name)+'</span><span class="cTime">'+esc(c.at)+(c.edited?' · đã chỉnh sửa':'')+'</span></div>'
+    + '<p class="cBody">'+body+'</p><div class="cActs">'+acts.join('')+'</div></div></div>'
+    + (c.replies||[]).map(r => '<div class="comment reply"><div>'+av(r.by)+'</div><div style="flex:1"><div class="cHead"><span class="cName">'+esc(u(r.by).name)+'</span><span class="cTime">'+esc(r.at)+'</span></div><p class="cBody">'+esc(r.body)+'</p></div></div>').join('');
+}
+function extHtml(x) {
+  if (!x.ok) return '<div class="extCard degraded"><span class="extBadge '+x.cls+'">'+x.abbr+'</span>'
+    + '<div style="flex:1"><b>'+esc(x.code)+'</b><span class="sub">⚠ Không lấy được dữ liệu từ '+MODULE_NAME[x.module]+'.</span></div>'
+    + '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đang thử lại\',\'Timeout 3 giây, cache 60 giây.\')">Thử lại</button></div>';
+  return '<div class="extCard"><span class="extBadge '+x.cls+'">'+x.abbr+'</span>'
+    + '<div style="flex:1;min-width:0"><b>'+esc(x.code)+'</b> <span class="badge b-normal">'+esc(x.status)+'</span><span class="sub">'+esc(x.label)+' · cập nhật lúc 09:42</span></div>'
+    + '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Mở module gốc\',\'Mọi thay đổi phải thực hiện tại '+MODULE_NAME[x.module]+'.\')">Mở trong '+MODULE_NAME[x.module]+' '+ic('ext',12)+'</button></div>';
+}
+
+function closePop() { const p = document.querySelector('.popconfirm'); if (p) p.remove(); }
+function popconfirm(ev, opt) {
+  ev.stopPropagation(); closePop();
+  const r = ev.currentTarget.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.className = 'popconfirm';
+  el.innerHTML = '<div class="pcHead"><span style="color:#d97706">'+ic('alert',16)+'</span><div><div class="pcTitle">'+esc(opt.title)+'</div>'
+    + '<p class="pcDesc">'+esc(opt.desc)+'</p></div></div>'
+    + (opt.confirmInput ? '<label>Nhập chính xác <b>'+esc(opt.confirmInput)+'</b> để xác nhận:</label><input id="pcInput" autocomplete="off" />' : '')
+    + '<div class="pcActions"><button class="btn btn-ghost btn-xs" onclick="closePop()">Huỷ</button>'
+    + '<button class="btn btn-danger btn-xs" id="pcOk"'+(opt.confirmInput?' disabled':'')+'>'+esc(opt.ok || 'Xác nhận')+'</button></div>';
+  document.body.appendChild(el);
+  const top = Math.min(r.bottom + 8, window.innerHeight - el.offsetHeight - 12);
+  el.style.top = top + 'px';
+  el.style.left = Math.max(12, Math.min(r.left - 100, window.innerWidth - 280)) + 'px';
+  if (opt.confirmInput) {
+    const inp = el.querySelector('#pcInput'), ok = el.querySelector('#pcOk');
+    inp.focus();
+    inp.oninput = () => { ok.disabled = inp.value.trim() !== opt.confirmInput; };
+  }
+  el.querySelector('#pcOk').onclick = () => { closePop(); opt.onOk(); };
+  setTimeout(() => document.addEventListener('click', function h(e) { if (!el.contains(e.target)) { closePop(); document.removeEventListener('click', h); } }), 0);
+}
+function popDelete(ev, what, desc) {
+  popconfirm(ev, { title:'Xoá '+what+'?', desc: desc, ok:'Xoá', onOk: () => toast('ok','Đã xoá','Thao tác trên bản mockup không thay đổi dữ liệu.') });
+}
+
+/* =========================================================================
+   RENDER — khung
+   ========================================================================= */
+function setRole(r) {
+  ROLE = r;
+  $('#userRoleLabel').textContent = ROLE_LABEL[r];
+  render();
+  toast('ok','Đã đổi vai trò: ' + ROLE_LABEL[r], 'Các nút bấm và phạm vi dữ liệu được tính lại theo ma trận phân quyền.');
+}
+function go(v) { view = v; location.hash = v; render(); }
+window.addEventListener('hashchange', () => { const h = location.hash.replace('#',''); if (TITLES[h]) { view = h; render(); } });
+
+function renderNav() {
+  let html = '', lastGroup = null;
+  NAV.forEach(n => {
+    if (n.group && n.group !== lastGroup) { html += '<div class="railGroup">'+n.group+'</div>'; lastGroup = n.group; }
+    html += '<button class="navItem'+(view===n.id?' active':'')+'" onclick="go(\''+n.id+'\')">'
+      + '<span class="navIcon">'+ic(n.icon,17)+'</span><span class="navLabel">'+n.label+'</span>'
+      + (n.badge ? '<span class="navBadge">'+n.badge+'</span>' : '') + '</button>';
+  });
+  $('#railNav').innerHTML = html;
+}
+function renderHeadActions() {
+  const A = {
+    'my-work':  '',
+    'projects': gate('project.create','<button class="btn btn-primary" onclick="dlgProject()">'+ic('plus',14)+' Thêm dự án</button>','hide'),
+    'tasks':    gate('task.create','<button class="btn btn-primary" onclick="dlgTask()">'+ic('plus',14)+' Thêm công việc</button>','hide'),
+    'documents':gate('doc.upload','<button class="btn btn-primary" onclick="dlgUpload()">'+ic('plus',14)+' Tải lên</button>','hide'),
+    'calendar': gate('event.create','<button class="btn btn-primary" onclick="dlgEvent()">'+ic('plus',14)+' Tạo sự kiện</button>','hide'),
+    'dashboard':gate('report.export','<button class="headerBtn" onclick="toast(\'ok\',\'Đang xuất Excel\',\'Tệp sinh phía client, giới hạn 50.000 dòng.\')">'+ic('down',14)+' Xuất Excel</button>','hide'),
+  };
+  $('#headActions').innerHTML = A[view] || '';
+}
+function render() {
+  renderNav();
+  $('#viewTitle').textContent = TITLES[view][0];
+  $('#crumb').textContent = TITLES[view][0];
+  renderHeadActions();
+  $('#viewBody').innerHTML = ({
+    'my-work': viewMyWork, 'projects': viewProjects, 'tasks': viewTasks,
+    'documents': viewDocuments, 'calendar': viewCalendar, 'dashboard': viewDashboard,
+  })[view]();
+}
+
+/* =========================================================================
+   MÀN 1 — CÔNG VIỆC CỦA TÔI
+   ========================================================================= */
+function viewMyWork() {
+  const mine = myItems();
+  const overdue = mine.filter(isOverdue);
+  const today = mine.filter(w => w.end === '2026-09-16');
+  const week = mine.filter(w => !isOverdue(w) && w.end > '2026-09-16' && w.end <= '2026-09-23');
+  const later = mine.filter(w => w.end > '2026-09-23');
+  const kpis = [
+    ['Quá hạn', overdue.length, 'danger', 'alert', 'Việc đang mở đã trễ hạn'],
+    ['Đến hạn hôm nay', today.length, 'warn', 'clock', 'Hạn rơi vào 16/09/2026'],
+    ['Đang làm', mine.filter(w=>w.status==='in_progress').length, '', 'play', 'Bạn đang thực hiện'],
+    ['Chờ phản hồi', EVENTS.filter(e=>e.resp==='needs_action').length, 'info', 'cal', 'Lời mời họp chưa trả lời'],
+  ];
+
+  const grp = (label, arr, danger) => arr.length ? '<div class="groupLabel'+(danger?' danger':'')+'">'+label+'<span class="count">'+arr.length+'</span></div>'
+    + arr.map(w => myRow(w)).join('') : '';
+
+  const t = WORK_ITEMS.find(w => w.id === sel.myTask) || mine[0];
+
+  return '<div class="cardGrid">' + kpis.map(k =>
+      '<div class="card"><p class="cardTitle">'+k[0]+'</p><div class="kpi"><div class="kpiValue '+k[2]+'">'+k[1]+'</div>'
+      + '<div class="kpiIcon '+k[2]+'">'+ic(k[3],18)+'</div></div><p class="kpiFoot">'+k[4]+'</p></div>').join('') + '</div>'
+    + (ROLE === 'tenant-admin' ? '<div class="notice info" style="margin-top:1rem">'+ic('alert',16)+'<div><b>Màn này không có override.</b> Kể cả quản trị tenant cũng chỉ thấy công việc của chính mình — “của tôi” nghĩa là của người đang đăng nhập.</div></div>' : '')
+    + '<div class="split" style="margin-top:1rem">'
+    +   '<div class="pane"><div class="paneHead"><h2 class="paneTitle">Việc được giao cho tôi</h2>'
+    +     '<select class="filter" onchange="toast(\'ok\',\'Đã lọc\',\'Bản mockup không lọc thật.\')"><option>Tất cả dự án</option><option>DA-2026-001</option><option>DA-2026-004</option></select></div>'
+    +     '<div class="paneScroll">'
+    +       (mine.length ? grp('Quá hạn', overdue, true) + grp('Hôm nay', today) + grp('Tuần này', week) + grp('Sau đó', later)
+                        : '<div class="empty" style="margin:1rem;border:0">Bạn không có công việc nào đang mở. 🎉</div>')
+    +     '</div></div>'
+    +   '<div class="pane">' + (t ? myDetail(t) : '<div class="empty" style="border:0">Chọn một công việc để xem chi tiết.</div>') + '</div>'
+    + '</div>';
+}
+function myRow(w) {
+  const od = isOverdue(w);
+  return '<div class="taskRow'+(sel.myTask===w.id?' rowActive':'')+'" onclick="sel.myTask=\''+w.id+'\';render()">'
+    + '<div>'+badge(w.status)+'</div>'
+    + '<div class="taskMain"><div class="taskTitle">'+esc(w.title)+'</div>'
+    + '<div class="taskMeta"><span class="code">'+w.code+'</span>'+pbadge(w.prio)
+    + '<span'+(od?' class="overdueTxt"':'')+'>Hạn '+fmtD(w.end)+(od?' · trễ '+daysLate(w.end)+' ngày':'')+'</span></div></div></div>';
+}
+function myDetail(w) {
+  const deps = DEPENDENCIES.filter(d => d.suc === w.id);
+  return '<div class="detailHead"><span class="code">'+w.code+'</span> '+badge(w.status)+' '+pbadge(w.prio)
+    + '<h3>'+esc(w.title)+'</h3>'
+    + '<div class="actionCell">'
+    +   (w.status === 'todo' ? gate('task.editOwn','<button class="btn btn-primary btn-xs" onclick="toast(\'ok\',\'Đã bắt đầu\',\'Ghi actual_start lần đầu vào in_progress.\')">'+ic('play',13)+' Bắt đầu làm</button>','hide') : '')
+    +   (w.status !== 'done' ? gate('task.editOwn','<button class="btn btn-ghost btn-xs" onclick="finishTask(\''+w.id+'\')">'+ic('check',13)+' Hoàn thành</button>','hide') : '')
+    +   '<button class="btn btn-ghost btn-xs" onclick="openDrawer({code:\''+w.code+'\',title:'+jsq(w.title)+',status:\''+w.status+'\'},\'comments\')">'+ic('msg',13)+' Trao đổi</button>'
+    + '</div></div>'
+    + '<div class="detailBody">'
+    +   '<div class="fieldGrid">'
+    +     '<div><span>Dự án</span><strong>DA-2026-001</strong></div>'
+    +     '<div><span>Loại</span><strong>'+ITYPE[w.type]+'</strong></div>'
+    +     '<div><span>Hạn hoàn thành</span><strong'+(isOverdue(w)?' class="overdueTxt"':'')+'>'+fmtD(w.end)+'</strong></div>'
+    +     '<div><span>Ước lượng</span><strong>'+(w.est ? w.est+' giờ' : '—')+'</strong></div>'
+    +   '</div>'
+    +   '<div><p class="blockTitle">Tiến độ</p>'+bar(w.prog)+'</div>'
+    +   (deps.length ? '<div><p class="blockTitle">Phụ thuộc</p><ul class="miniList">'
+          + deps.map(d => { const p = WORK_ITEMS.find(x=>x.id===d.pre); return '<li><span class="badge b-normal">'+d.type+'</span><span style="flex:1">'+esc(p.title)+'<span class="sub">'+p.code+'</span></span>'+badge(p.status)+'</li>'; }).join('')
+          + '</ul></div>' : '')
+    +   '<div><p class="blockTitle">Lịch hôm nay</p><ul class="miniList">'
+    +     EVENTS.filter(e => e.d === 0 && e.type !== 'busy').map(e => '<li>'+ic('cal',15)+'<span style="flex:1">'+esc(e.title)+'<span class="sub">'+fmtH(e.h)+' – '+fmtH(e.h+e.len)+(e.room?' · '+e.room:'')+'</span></span>'
+        + (e.resp === 'needs_action'
+            ? '<span class="actionCell"><button class="btn btn-primary btn-xs" onclick="toast(\'ok\',\'Đã nhận lời\',\'Cập nhật calendar_event_participants.response_status.\')">Nhận</button>'
+              + '<button class="btn btn-ghost btn-xs" onclick="popconfirm(event,{title:\'Từ chối lời mời này?\',desc:\'Sự kiện sẽ biến khỏi lịch của bạn.\',ok:\'Từ chối\',onOk:function(){toast(\'ok\',\'Đã từ chối\',\'\')}})">Từ chối</button></span>'
+            : '<span class="badge b-done">Đã nhận</span>') + '</li>').join('')
+    +   '</ul></div>'
+    +   '<div><p class="blockTitle">Có người nhắc tôi</p><ul class="miniList">'
+    +     COMMENTS.filter(c => c.mentionsMe).map(c => '<li>'+av(c.by)+'<span style="flex:1">'+esc(u(c.by).name)+' nhắc bạn<span class="sub">'+esc(c.body.slice(0,64))+'…</span></span>'
+        + '<button class="btn btn-ghost btn-xs" onclick="openDrawer({code:\'WBS-2.2\',title:\'Thiết kế phân quyền RBAC\',status:\'review\'},\'comments\')">Mở</button></li>').join('')
+    +   '</ul></div>'
+    +   '<div><p class="blockTitle">Từ module khác</p>'
+    +     '<div style="display:flex;flex-direction:column;gap:.5rem">'+EXTERNAL_REFS.map(extHtml).join('')+'</div></div>'
+    + '</div>';
+}
+function finishTask(id) {
+  const w = WORK_ITEMS.find(x => x.id === id);
+  const blockers = DEPENDENCIES.filter(d => d.suc === id && d.type === 'FS').map(d => WORK_ITEMS.find(x => x.id === d.pre)).filter(p => p.status !== 'done');
+  if (blockers.length) { toast('err','Không thể hoàn thành','Công việc tiền nhiệm ' + blockers[0].code + ' chưa hoàn thành.'); return; }
+  const kids = children(id).filter(k => !['done','cancelled'].includes(k.status));
+  if (kids.length) { toast('err','Không thể hoàn thành','Còn ' + kids.length + ' công việc con chưa hoàn thành.'); return; }
+  w.status = 'done'; w.prog = 100;
+  render();
+  toast('ok','Đã hoàn thành công việc','Ghi actual_end và phát sự kiện workspace.work-item.completed.');
+}
+
+/* =========================================================================
+   MÀN 2 — DỰ ÁN
+   ========================================================================= */
+function viewProjects() {
+  const visible = ROLE === 'tenant-admin' ? PROJECTS : PROJECTS.filter(p => p.id !== 'p5');
+  const p = visible.find(x => x.id === sel.project) || visible[0];
+  return (ROLE === 'tenant-admin' ? '<div class="notice info" style="margin-bottom:1rem">'+ic('alert',16)+'<div><b>Quản trị tenant:</b> đang hiển thị <b>mọi dự án trong tenant</b>, kể cả dự án bạn không phải thành viên.</div></div>' : '')
+    + '<div class="split">'
+    + '<div class="pane"><div class="paneHead"><div class="toolbar">'
+    +   gate('project.create','<button class="btn btn-primary btn-xs" onclick="dlgProject()">'+ic('plus',13)+' Thêm mới</button>','hide')
+    +   '<div class="search">'+ic('search',14)+'<input placeholder="Tìm mã hoặc tên dự án…" /></div>'
+    +   '<select class="filter"><option>Tất cả trạng thái</option><option>Đang chạy</option><option>Tạm dừng</option></select>'
+    +   '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đã xoá bộ lọc\',\'\')">'+ic('x',12)+' Xoá lọc</button>'
+    + '</div></div>'
+    + '<div class="paneScroll"><div class="tableWrap"><table class="data"><thead><tr>'
+    +   '<th>Mã · Tên dự án</th><th>Chủ nhiệm</th><th>Tiến độ</th><th class="right">Quá hạn</th><th>Trạng thái</th><th></th></tr></thead><tbody>'
+    +   visible.map(x => '<tr class="'+(p && p.id===x.id?'rowActive':'')+'" onclick="sel.project=\''+x.id+'\';render()">'
+    +     '<td><span class="code">'+x.code+'</span><span class="sub">'+esc(x.name)+'</span></td>'
+    +     '<td>'+av(x.owner)+'</td>'
+    +     '<td style="min-width:8rem">'+bar(x.progress)+'<span class="sub">'+x.done+'/'+x.total+' việc</span></td>'
+    +     '<td class="right numeric">'+(x.overdue ? '<span class="overdueTxt">'+x.overdue+'</span>' : '0')+'</td>'
+    +     '<td><span class="badge '+PST[x.status].c+'">'+PST[x.status].l+'</span></td>'
+    +     '<td><div class="actionCell">'+gate('project.edit','<button class="iconBtn" title="Sửa" onclick="event.stopPropagation();dlgProject(\''+x.id+'\')">'+ic('edit',13)+'</button>','hide')+'</div></td></tr>').join('')
+    +   '</tbody></table></div>'
+    +   pager(1, visible.length, visible.length, 'dự án', 1, 1)
+    + '</div></div>'
+    + '<div class="pane">'+(p ? projectDetail(p) : '<div class="empty" style="border:0">Chưa có dự án nào.</div>')+'</div></div>';
+}
+function projectDetail(p) {
+  const members = [['u1','owner'],['u2','manager'],['u3','member'],['u4','member'],['u5','viewer']];
+  const RL = { owner:'Chủ nhiệm', manager:'Quản lý', member:'Thành viên', viewer:'Chỉ đọc' };
+  return '<div class="detailHead"><span class="code">'+p.code+'</span> <span class="badge '+PST[p.status].c+'">'+PST[p.status].l+'</span>'
+    + '<h3>'+esc(p.name)+'</h3>'
+    + '<div class="actionCell">'
+    +   '<button class="btn btn-ghost btn-xs" onclick="go(\'tasks\')">'+ic('check',13)+' Mở công việc</button>'
+    +   '<button class="btn btn-ghost btn-xs" onclick="go(\'documents\')">'+ic('file',13)+' Tài liệu</button>'
+    +   gate('project.transferOwner','<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đổi chủ nhiệm\',\'Phải chỉ định người thay thế trong cùng thao tác.\')">'+ic('users',13)+' Đổi chủ nhiệm</button>','hide')
+    +   gate('project.cancel','<button class="btn btn-danger btn-xs" onclick="popconfirm(event,{title:\'Huỷ dự án '+p.code+'?\',desc:\'Dự án và toàn bộ công việc sẽ biến khỏi My Work và Báo cáo.\',ok:\'Huỷ dự án\',confirmInput:\''+p.code+'\',onOk:function(){toast(\'ok\',\'Đã huỷ dự án\',\'status chuyển sang cancelled, không xoá dòng.\')}})">'+ic('trash',13)+' Huỷ dự án</button>','hide')
+    + '</div></div>'
+    + '<div class="detailBody">'
+    +   '<div class="fieldGrid">'
+    +     '<div><span>Chủ nhiệm</span><strong>'+esc(u(p.owner).name)+'</strong></div>'
+    +     '<div><span>Đơn vị phụ trách</span><strong>'+esc(p.unit)+'</strong></div>'
+    +     '<div><span>Bắt đầu</span><strong>'+fmtD(p.start)+'</strong></div>'
+    +     '<div><span>Kết thúc</span><strong>'+fmtD(p.end)+'</strong></div>'
+    +   '</div>'
+    +   '<div><p class="blockTitle">Tiến độ tổng</p>'+bar(p.progress)
+    +     '<div class="taskMeta" style="margin-top:.4rem"><span>'+p.done+'/'+p.total+' việc đã đóng</span>'
+    +     (p.overdue ? '<span class="overdueTxt">· '+p.overdue+' việc quá hạn</span>' : '')+'</div></div>'
+    +   '<div><p class="blockTitle">Cột mốc sắp tới</p><ul class="miniList">'
+    +     WORK_ITEMS.filter(w => w.type === 'milestone').map(w => '<li>'+ic('cal',15)+'<span style="flex:1">'+esc(w.title)+'<span class="sub">'+w.code+' · hạn '+fmtD(w.end)+'</span></span>'+badge(w.status)+'</li>').join('')
+    +   '</ul></div>'
+    +   '<div><div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem"><p class="blockTitle" style="margin:0">Thành viên ('+members.length+')</p>'
+    +     gate('project.members','<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Thêm thành viên\',\'Danh sách lấy từ Organization API, cache 60 giây.\')">'+ic('plus',12)+' Thêm</button>','hide')+'</div>'
+    +     '<ul class="miniList" style="margin-top:.5rem">'
+    +     members.map(m => '<li>'+av(m[0])+'<span style="flex:1">'+esc(u(m[0]).name)+'</span>'
+        + (can('project.members')
+            ? '<select class="filter" style="max-width:8rem" onchange="toast(\'ok\',\'Đã đổi vai trò\',\'\')">'+Object.keys(RL).map(k=>'<option'+(k===m[1]?' selected':'')+'>'+RL[k]+'</option>').join('')+'</select>'
+            : '<span class="badge b-normal">'+RL[m[1]]+'</span>')
+        + gate('project.members','<button class="iconBtn" title="Gỡ khỏi dự án" onclick="popconfirm(event,{title:\'Gỡ '+esc(u(m[0]).name)+' khỏi dự án?\',desc:\'Không gỡ được nếu người này còn phụ trách công việc chưa đóng.\',ok:\'Gỡ\',onOk:function(){toast(\'err\',\'Không thể gỡ\',\''+esc(u(m[0]).name)+' đang phụ trách 2 công việc chưa đóng.\')}})">'+ic('x',13)+'</button>','hide')
+        + '</li>').join('') + '</ul></div>'
+    + '</div>';
+}
+
+/* =========================================================================
+   MÀN 3 — CÔNG VIỆC (WBS + KANBAN)
+   ========================================================================= */
+function viewTasks() {
+  const t = WORK_ITEMS.find(w => w.id === sel.task) || WORK_ITEMS[0];
+  const left = sel.taskMode === 'tree'
+    ? '<div class="paneScroll"><ul class="tree">'+children(null).map(n => treeNode(n)).join('')+'</ul></div>'
+    : '<div class="paneScroll" style="padding:.7rem">'+kanban()+'</div>';
+  return '<div class="split">'
+    + '<div class="pane"><div class="paneHead"><div class="toolbar">'
+    +   gate('task.create','<button class="btn btn-primary btn-xs" onclick="dlgTask()">'+ic('plus',13)+' Thêm</button>','hide')
+    +   '<div class="search">'+ic('search',14)+'<input placeholder="Tìm mã hoặc tiêu đề…" /></div>'
+    +   '<select class="filter"><option>Mọi trạng thái</option><option>Đang mở</option></select>'
+    + '</div>'
+    + '<div class="actionCell"><button class="btn '+(sel.taskMode==='tree'?'btn-primary':'btn-ghost')+' btn-xs" onclick="sel.taskMode=\'tree\';render()">Cây WBS</button>'
+    + '<button class="btn '+(sel.taskMode==='kanban'?'btn-primary':'btn-ghost')+' btn-xs" onclick="sel.taskMode=\'kanban\';render()">Kanban</button></div></div>'
+    + left + '</div>'
+    + '<div class="pane">'+taskDetail(t)+'</div></div>';
+}
+function treeNode(n) {
+  const kids = children(n.id);
+  const od = isOverdue(n);
+  return '<li><div class="node'+(sel.task===n.id?' active':'')+'" onclick="sel.task=\''+n.id+'\';render()">'
+    + '<span class="twisty">'+(kids.length ? '▾' : '·')+'</span>'
+    + '<span class="nm"><span class="code">'+n.code+'</span> '+esc(n.title)+'</span>'
+    + (n.assignee ? av(n.assignee) : '')
+    + badge(n.status)
+    + (od ? '<span class="badge b-blocked">Trễ</span>' : '')
+    + '</div>' + (kids.length ? '<ul>'+kids.map(treeNode).join('')+'</ul>' : '') + '</li>';
+}
+function kanban() {
+  const cols = ['todo','in_progress','blocked','review','done','cancelled'];
+  return '<div class="kanban">' + cols.map(c => {
+    const items = WORK_ITEMS.filter(w => w.status === c && w.type !== 'phase');
+    return '<div class="kanCol"><div class="kanHead"><span>'+ST[c].l+'</span><span class="navBadge" style="background:#e2e8f0;color:#475569">'+items.length+'</span></div>'
+      + '<div class="kanBody">' + (items.length ? items.map(w =>
+          '<div class="kanCard" onclick="sel.task=\''+w.id+'\';render()"><div class="t">'+esc(w.title)+'</div>'
+          + '<div class="m"><span class="code">'+w.code+'</span>'+pbadge(w.prio)+(w.assignee?av(w.assignee):'')+'</div></div>').join('')
+        : '<p class="muted" style="margin:0;font-size:.76rem">Trống</p>') + '</div></div>';
+  }).join('') + '</div>';
+}
+function taskDetail(w) {
+  const deps = DEPENDENCIES.filter(d => d.suc === w.id);
+  const kids = children(w.id);
+  const canMove = can('task.moveWbs');
+  return '<div class="detailHead"><span class="code">'+w.code+'</span> '+badge(w.status)+' '+pbadge(w.prio)+' <span class="badge b-normal">'+ITYPE[w.type]+'</span>'
+    + '<h3>'+esc(w.title)+'</h3>'
+    + '<div class="actionCell">'
+    +   gate('task.editOwn','<button class="btn btn-ghost btn-xs" onclick="dlgTask(\''+w.id+'\')">'+ic('edit',13)+' Sửa</button>','hide')
+    +   '<button class="btn btn-ghost btn-xs" onclick="openDrawer({code:\''+w.code+'\',title:'+jsq(w.title)+',status:\''+w.status+'\'},\'comments\')">'+ic('msg',13)+' Trao đổi</button>'
+    +   '<button class="btn btn-ghost btn-xs" onclick="openDrawer({code:\''+w.code+'\',title:'+jsq(w.title)+',status:\''+w.status+'\'},\'files\')">'+ic('paperclip',13)+' Tệp</button>'
+    +   '<button class="btn btn-ghost btn-xs" onclick="openDrawer({code:\''+w.code+'\',title:'+jsq(w.title)+',status:\''+w.status+'\'},\'links\')">'+ic('link',13)+' Liên kết</button>'
+    +   gate('task.cancel','<button class="btn btn-danger btn-xs" onclick="popconfirm(event,{title:\'Huỷ công việc này?\',desc:\'Các công việc con cũng sẽ bị huỷ theo.\',ok:\'Huỷ việc\',onOk:function(){toast(\'ok\',\'Đã huỷ công việc\',\'status chuyển sang cancelled.\')}})">'+ic('trash',13)+' Huỷ</button>','hide')
+    + '</div></div>'
+    + '<div class="detailBody">'
+    +   '<div class="fieldGrid">'
+    +     '<div><span>Người phụ trách</span><strong>'
+    +       (canMove
+            ? '<select class="filter" style="max-width:100%" onchange="toast(\'ok\',\'Đã gán người phụ trách\',\'Bắt buộc là thành viên dự án.\')">'+Object.keys(USERS).map(k=>'<option'+(k===w.assignee?' selected':'')+'>'+esc(USERS[k].name)+'</option>').join('')+'</select>'
+            : '<span title="Chỉ quản lý dự án mới điều phối được công việc" class="isDisabled">'+(w.assignee?esc(u(w.assignee).name):'Chưa gán')+'</span>')
+    +     '</strong></div>'
+    +     '<div><span>Hạn hoàn thành</span><strong'+(isOverdue(w)?' class="overdueTxt"':'')+'>'+fmtD(w.end)+'</strong></div>'
+    +     '<div><span>Ước lượng</span><strong>'+(w.est ? w.est+' giờ' : '—')+'</strong></div>'
+    +     '<div><span>Số việc con</span><strong>'+kids.length+'</strong></div>'
+    +   '</div>'
+    +   '<div><p class="blockTitle">Tiến độ</p>'+bar(w.prog)+'</div>'
+    +   '<div><div style="display:flex;align-items:center;justify-content:space-between"><p class="blockTitle" style="margin:0">Phụ thuộc</p>'
+    +     gate('task.dependencies','<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Thêm phụ thuộc\',\'Kiểm tra chu trình DAG trước khi ghi.\')">'+ic('plus',12)+' Thêm</button>','hide')+'</div>'
+    +     (deps.length ? '<ul class="miniList" style="margin-top:.5rem">'+deps.map(d => { const p = WORK_ITEMS.find(x=>x.id===d.pre);
+            return '<li><span class="badge b-normal">'+d.type+'</span><span style="flex:1">'+esc(p.title)+'<span class="sub">'+p.code+'</span></span>'+badge(p.status)
+            + gate('task.dependencies','<button class="iconBtn" title="Gỡ" onclick="popDelete(event,\'phụ thuộc này\',\'Quan hệ sẽ bị gỡ khỏi đồ thị.\')">'+ic('x',13)+'</button>','hide')+'</li>'; }).join('')+'</ul>'
+          : '<p class="muted" style="margin:.4rem 0 0">Không có phụ thuộc.</p>')
+    +   '</div>'
+    +   (w.status === 'blocked' ? '<div class="notice">'+ic('alert',16)+'<div>Công việc đang <b>bị chặn</b>: tiền nhiệm kiểu FS chưa hoàn thành. Không thể chuyển sang Hoàn thành cho tới khi gỡ chặn.</div></div>' : '')
+    +   '<div><p class="blockTitle">Liên kết liên module</p><div style="display:flex;flex-direction:column;gap:.5rem">'+EXTERNAL_REFS.slice(0,2).map(extHtml).join('')+'</div></div>'
+    + '</div>';
+}
+
+/* =========================================================================
+   MÀN 4 — TÀI LIỆU
+   ========================================================================= */
+function viewDocuments() {
+  const docs = DOCUMENTS.filter(d => d.folder === sel.folder);
+  const d = docs.find(x => x.id === sel.doc) || docs[0];
+  const froot = FOLDERS.filter(f => !f.parent);
+  const fnode = (f) => { const kids = FOLDERS.filter(x => x.parent === f.id);
+    return '<li><div class="node'+(sel.folder===f.id?' active':'')+'" onclick="sel.folder=\''+f.id+'\';sel.doc=null;render()">'
+      + '<span class="twisty">'+(kids.length?'▾':'·')+'</span><span class="nm">'+ic('folder',14)+' '+esc(f.name)+'</span>'
+      + '<span class="navBadge" style="background:#e2e8f0;color:#475569">'+DOCUMENTS.filter(x=>x.folder===f.id).length+'</span></div>'
+      + (kids.length ? '<ul>'+kids.map(fnode).join('')+'</ul>' : '') + '</li>'; };
+  return '<div class="split" style="grid-template-columns:minmax(0,34fr) minmax(0,66fr)">'
+    + '<div class="pane"><div class="paneHead"><h2 class="paneTitle">Thư mục</h2>'
+    +   gate('doc.upload','<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Tạo thư mục\',\'Tên duy nhất trong cùng thư mục cha, tối đa 5 cấp.\')">'+ic('plus',12)+' Thư mục</button>','hide')+'</div>'
+    + '<div class="paneScroll"><ul class="tree">'+froot.map(fnode).join('')+'</ul></div></div>'
+    + '<div class="pane"><div class="paneHead"><div class="toolbar">'
+    +   gate('doc.upload','<button class="btn btn-primary btn-xs" onclick="dlgUpload()">'+ic('plus',13)+' Tải lên</button>','hide')
+    +   '<div class="search">'+ic('search',14)+'<input placeholder="Tìm tài liệu…" /></div>'
+    +   '<select class="filter"><option>Đang hoạt động</option><option>Đã lưu trữ</option></select></div></div>'
+    + '<div class="paneScroll"><div class="tableWrap"><table class="data"><thead><tr>'
+    +   '<th>Tên tài liệu</th><th>Phiên bản</th><th>Cập nhật</th><th>Trạng thái</th><th></th></tr></thead><tbody>'
+    +   (docs.length ? docs.map(x => '<tr class="'+(d&&d.id===x.id?'rowActive':'')+'" onclick="sel.doc=\''+x.id+'\';render()">'
+    +     '<td>'+ic('file',14)+' '+esc(x.name)+'<span class="sub">'+x.type+' · '+x.size+'</span></td>'
+    +     '<td><span class="badge b-normal">v'+x.ver+'</span></td>'
+    +     '<td>'+av(x.by)+'<span class="sub">'+x.at+'</span></td>'
+    +     '<td>'+(x.lockedBy ? '<span class="badge b-amber">'+ic('lock',11)+' '+esc(u(x.lockedBy).name)+'</span>' : (x.status==='archived'?'<span class="badge b-cancel">Lưu trữ</span>':'<span class="badge b-done">Sẵn sàng</span>'))+'</td>'
+    +     '<td><div class="actionCell">'
+    +       gate('doc.download','<button class="iconBtn" title="Tải xuống" onclick="event.stopPropagation();toast(\'ok\',\'Đang tải xuống\',\'URL ký trước hạn 300 giây.\')">'+ic('down',13)+'</button>','hide')
+    +       '<button class="iconBtn" title="Lịch sử phiên bản" onclick="event.stopPropagation();openDrawer({code:\'v'+x.ver+'\',title:'+jsq(x.name)+'},\'history\')">'+ic('hist',13)+'</button>'
+    +     '</div></td></tr>').join('')
+        : '<tr><td colspan="5"><div class="empty" style="border:0">Thư mục này chưa có tài liệu.</div></td></tr>')
+    +   '</tbody></table></div>' + pager(1, docs.length, docs.length, 'tài liệu', 1, 1) + '</div>'
+    + (d ? docDetail(d) : '') + '</div></div>';
+}
+function docDetail(d) {
+  const locked = !!d.lockedBy, lockedByMe = d.lockedBy === ME.id;
+  return '<div style="border-top:1px solid #e2e8f0"><div class="detailBody">'
+    + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">'
+    +   '<div><p class="blockTitle" style="margin:0">Tài liệu đang chọn</p><h3 style="margin:.2rem 0 0;font-size:1rem">'+esc(d.name)+'</h3></div>'
+    +   '<div class="actionCell">'
+    +     gate('doc.download','<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đang tải xuống\',\'Server chỉ trả URL ký trước, không truyền byte.\')">'+ic('down',13)+' Tải xuống</button>','hide')
+    +     (locked
+              ? (lockedByMe || can('doc.unlockOthers')
+                  ? '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đã mở khoá\',\'Xoá locked_by và locked_at.\')">'+ic('unlock',13)+' Mở khoá</button>'
+                  : '<button class="btn btn-ghost btn-xs isDisabled" title="Chỉ quản lý dự án mới mở được khoá của người khác">'+ic('unlock',13)+' Mở khoá</button>')
+              : gate('doc.lock','<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đã khoá tài liệu\',\'Người khác không tạo được phiên bản mới.\')">'+ic('lock',13)+' Khoá để sửa</button>','hide'))
+    +     gate('doc.upload','<button class="btn btn-ghost btn-xs" onclick="'+(locked && !lockedByMe ? 'toast(\'err\',\'Tài liệu đang bị khoá\',\''+esc(u(d.lockedBy||'u2').name)+' đang giữ khoá.\')' : 'dlgUpload(true)')+'">'+ic('plus',13)+' Phiên bản mới</button>','hide')
+    +     gate('doc.archive','<button class="btn btn-danger btn-xs" onclick="popconfirm(event,{title:\'Lưu trữ tài liệu?\',desc:\'Tệp gốc vẫn được giữ trên kho lưu trữ.\',ok:\'Lưu trữ\',confirmInput:'+jsq(d.name)+',onOk:function(){toast(\'ok\',\'Đã lưu trữ\',\'status chuyển sang archived, object không bị xoá.\')}})">'+ic('trash',13)+' Lưu trữ</button>','hide')
+    +   '</div></div>'
+    + (locked ? '<div class="notice">'+ic('lock',16)+'<div><b>'+esc(u(d.lockedBy).name)+'</b> đang giữ khoá tài liệu này từ 14/09/2026 16:05. Chỉ người giữ khoá mới tải được phiên bản mới.</div></div>' : '')
+    + '<div class="fieldGrid">'
+    +   '<div><span>Phiên bản hiện hành</span><strong>v'+d.ver+'</strong></div>'
+    +   '<div><span>Định dạng</span><strong>'+d.type+' · '+d.size+'</strong></div>'
+    +   '<div><span>Cập nhật bởi</span><strong>'+esc(u(d.by).name)+'</strong></div>'
+    +   '<div><span>Thời điểm</span><strong>'+d.at+'</strong></div>'
+    + '</div>'
+    + '<div><p class="blockTitle">Gắn vào</p><ul class="miniList">'
+    +   '<li>'+ic('check',14)+'<span style="flex:1">WBS-2.1 · Thiết kế CSDL đa tenant</span><span class="badge b-done">Hoàn thành</span></li>'
+    +   '<li>'+ic('cal',14)+'<span style="flex:1">Họp chốt thiết kế CSDL</span><span class="badge b-progress">Hôm nay</span></li>'
+    + '</ul></div></div></div>';
+}
+
+/* =========================================================================
+   MÀN 5 — LỊCH BIỂU
+   ========================================================================= */
+function viewCalendar() {
+  const days = [['Thứ 2','14/09'],['Thứ 3','15/09'],['Thứ 4','16/09'],['Thứ 5','17/09'],['Thứ 6','18/09'],['Thứ 7','19/09'],['CN','20/09']];
+  const H0 = 7, H1 = 19;
+  let head = '<div class="calHeadCell"></div>' + days.map((d,i) => '<div class="calHeadCell'+(i===2?' today':'')+'">'+d[0]+'<small>'+d[1]+'</small></div>').join('');
+  let timeCol = '<div class="calTime">' + Array.from({length:H1-H0}, (_,i) => '<div class="calHour">'+String(H0+i).padStart(2,'0')+':00</div>').join('') + '</div>';
+  let cols = days.map((d, di) => {
+    const evs = EVENTS.filter(e => e.d === di);
+    return '<div class="calCol">' + Array.from({length:H1-H0}, () => '<div class="calSlot"></div>').join('')
+      + evs.map(e => {
+          const top = (e.h - H0) * 40, hgt = e.len * 40 - 4;
+          const cls = e.type === 'busy' ? 'ev-busy' : 'ev-' + e.type;
+          const onclick = e.type === 'busy' ? '' : ' onclick="eventDrawer(\''+e.id+'\')"';
+          return '<div class="calEvent '+cls+'" style="top:'+top+'px;height:'+hgt+'px"'+onclick+'>'
+            + '<b>'+esc(e.title)+'</b>' + (e.type!=='busy' ? '<span>'+fmtH(e.h)+(e.room?' · '+e.room:'')+'</span>' : '') + '</div>';
+        }).join('') + '</div>';
+  }).join('');
+
+  const pending = EVENTS.filter(e => e.resp === 'needs_action');
+  return '<div class="split" style="grid-template-columns:minmax(0,26fr) minmax(0,74fr)">'
+    + '<div class="pane"><div class="paneHead"><h2 class="paneTitle">Phạm vi lịch</h2></div>'
+    + '<div class="paneScroll" style="padding:.85rem;display:flex;flex-direction:column;gap:1rem">'
+    +   '<div><p class="blockTitle">Hiển thị</p><ul class="miniList">'
+    +     ['Lịch của tôi','Lịch đơn vị','Lịch tài nguyên'].map((x,i) => '<li><input type="checkbox" '+(i<2?'checked':'')+' /> <span style="flex:1">'+x+'</span></li>').join('')
+    +   '</ul></div>'
+    +   '<div><p class="blockTitle">Lời mời chờ phản hồi ('+pending.length+')</p>'
+    +     (pending.length ? '<ul class="miniList">' + pending.map(e => '<li><span style="flex:1">'+esc(e.title)+'<span class="sub">'+days[e.d][0]+' · '+fmtH(e.h)+'</span></span></li>'
+        + '<li style="border:0;padding-top:0"><button class="btn btn-primary btn-xs" onclick="toast(\'ok\',\'Đã nhận lời\',\'\')">Nhận lời</button>'
+        + '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đã từ chối\',\'\')">Từ chối</button>'
+        + '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Tạm nhận\',\'\')">Tạm nhận</button></li>').join('') + '</ul>'
+        : '<p class="muted">Không có lời mời nào.</p>') + '</div>'
+    +   '<div><p class="blockTitle">Tài nguyên</p><ul class="miniList">'
+    +     ['P.301 · 12 chỗ','P.205 · 6 chỗ','Hội trường A · 60 chỗ','Máy chiếu di động'].map(x => '<li>'+ic('folder',14)+'<span style="flex:1">'+x+'</span></li>').join('')
+    +   '</ul>'
+    +   (can('resource.manage')
+          ? '<button class="btn btn-ghost btn-xs" style="margin-top:.5rem" onclick="toast(\'ok\',\'Quản lý danh mục\',\'Chỉ quản trị tenant mới có quyền workspace.manage.\')">'+ic('edit',12)+' Quản lý danh mục</button>'
+          : '<p class="muted" style="margin:.5rem 0 0">Chỉ <b>quản trị tenant</b> mới sửa được danh mục tài nguyên.</p>')
+    +   '</div>'
+    + '</div></div>'
+    + '<div class="pane"><div class="paneHead"><h2 class="paneTitle">Tuần 14/09 – 20/09/2026</h2>'
+    +   '<div class="actionCell"><button class="btn btn-ghost btn-xs">Tháng</button><button class="btn btn-primary btn-xs">Tuần</button><button class="btn btn-ghost btn-xs">Ngày</button></div></div>'
+    + '<div class="paneScroll"><div class="calGrid">'+head+'</div><div class="calGrid">'+timeCol+cols+'</div>'
+    + '<div style="padding:.75rem .85rem"><ul class="legend">'
+    +   [['#2563eb','Cuộc họp'],['#b91c1c','Hạn chót'],['#15803d','Công việc'],['#6d28d9','Khác'],['#94a3b8','Bận (không xem được nội dung)']]
+        .map(l => '<li><span class="legendDot" style="background:'+l[0]+'"></span>'+l[1]+'</li>').join('')
+    + '</ul></div></div></div></div>';
+}
+function eventDrawer(id) {
+  const e = EVENTS.find(x => x.id === id);
+  const RESP = { accepted:'Đã nhận', declined:'Từ chối', tentative:'Tạm nhận', needs_action:'Chờ phản hồi' };
+  const organizer = e.people[0];
+  const isOrganizer = organizer === ME.id;
+  $('#overlayRoot').innerHTML =
+    '<div class="backdrop" onclick="closeOverlay()"></div>'
+    + '<aside class="drawer"><div class="drawerHead"><div class="drawerTop"><div>'
+    +   '<span class="badge b-progress">'+({meeting:'Cuộc họp',deadline:'Hạn chót',task:'Công việc',other:'Khác'})[e.type]+'</span>'
+    +   (e.rrule ? ' <span class="badge b-normal">'+e.rrule+'</span>' : '')
+    +   '<h3>'+esc(e.title)+'</h3></div>'
+    +   '<button class="iconBtn" onclick="closeOverlay()">'+ic('x',15)+'</button></div></div>'
+    + '<div class="drawerBody">'
+    +   '<div class="fieldGrid">'
+    +     '<div><span>Thời gian</span><strong>'+fmtH(e.h)+' – '+fmtH(e.h+e.len)+'</strong></div>'
+    +     '<div><span>Địa điểm</span><strong>'+(e.room || 'Trực tuyến')+'</strong></div>'
+    +     '<div><span>Người tổ chức</span><strong>'+esc(u(organizer).name)+'</strong></div>'
+    +     '<div><span>Múi giờ</span><strong>Asia/Ho_Chi_Minh</strong></div>'
+    +   '</div>'
+    +   '<div style="margin-top:1rem"><p class="blockTitle">Người tham dự ('+e.people.length+')</p><ul class="miniList">'
+    +     e.people.map((p,i) => '<li>'+av(p)+'<span style="flex:1">'+esc(u(p).name)+(i===0?' <span class="sub">Người tổ chức</span>':'')+'</span>'
+        + '<span class="badge '+(i===0?'b-done':(i%3===0?'b-amber':'b-done'))+'">'+(i===0?'Đã nhận':(i%3===0?'Chờ phản hồi':'Đã nhận'))+'</span></li>').join('')
+    +   '</ul></div>'
+    +   (e.resp === 'needs_action' ? '<div class="notice" style="margin-top:1rem">'+ic('alert',16)+'<div>Bạn <b>chưa phản hồi</b> lời mời này.</div></div>' : '')
+    +   (!isOrganizer ? '<div class="notice info" style="margin-top:1rem">'+ic('alert',16)+'<div>Chỉ <b>người tổ chức</b> mới sửa hoặc huỷ được sự kiện. Bạn là người tham dự nên chỉ phản hồi được lời mời.</div></div>' : '')
+    + '</div>'
+    + '<div class="drawerFoot"><div class="actionCell">'
+    +   (e.resp ? '<button class="btn btn-primary btn-xs" onclick="toast(\'ok\',\'Đã nhận lời\',\'\')">Nhận lời</button>'
+        + '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Đã từ chối\',\'\')">Từ chối</button>'
+        + '<button class="btn btn-ghost btn-xs" onclick="toast(\'ok\',\'Tạm nhận\',\'\')">Tạm nhận</button>' : '')
+    +   (isOrganizer || ROLE === 'tenant-admin'
+          ? '<button class="btn btn-ghost btn-xs" onclick="dlgEvent(\''+e.id+'\')">'+ic('edit',13)+' Sửa</button>'
+            + '<button class="btn btn-danger btn-xs" onclick="popconfirm(event,{title:\'Huỷ sự kiện này?\',desc:\'Người tham dự sẽ thấy trạng thái đã huỷ, tài nguyên được giải phóng.\',ok:\'Huỷ sự kiện\',onOk:function(){toast(\'ok\',\'Đã huỷ sự kiện\',\'\')}})">'+ic('trash',13)+' Huỷ</button>'
+          : '')
+    + '</div></div></aside>';
+}
+
+/* =========================================================================
+   MÀN 6 — BÁO CÁO & DASHBOARD
+   ========================================================================= */
+function viewDashboard() {
+  const scoped = can('report.allPeople');
+  const kpis = [
+    ['Dự án đang chạy', PROJECTS.filter(p=>['planning','active','on_hold'].includes(p.status)).length, '', 'folder'],
+    ['Công việc quá hạn', openItems().filter(isOverdue).length, 'danger', 'alert'],
+    ['Sắp đến hạn 7 ngày', 3, 'warn', 'clock'],
+    ['Việc hoàn thành trong kỳ', WORK_ITEMS.filter(w=>w.status==='done').length, 'ok', 'check'],
+  ];
+  const workload = scoped
+    ? [['u1',2,1,1,0],['u2',0,1,0,0],['u3',0,0,1,1],['u4',0,0,1,0],['u5',0,0,0,0]]
+    : [['u1',2,1,1,0]];
+  const maxW = Math.max(...workload.map(r => r[1]+r[2]+r[3]+r[4]), 1);
+  const donePct = Math.round(WORK_ITEMS.filter(w=>w.status==='done').length / WORK_ITEMS.length * 100);
+
+  return '<div class="cardGrid">' + kpis.map(k =>
+      '<div class="card"><p class="cardTitle">'+k[0]+'</p><div class="kpi"><div class="kpiValue '+k[2]+'">'+k[1]+'</div>'
+      + '<div class="kpiIcon '+k[2]+'">'+ic(k[3],18)+'</div></div></div>').join('') + '</div>'
+    + (!scoped ? '<div class="notice info" style="margin-top:1rem">'+ic('alert',16)+'<div>Vai trò <b>'+ROLE_LABEL[ROLE]+'</b> chỉ xem được <b>số liệu của chính mình</b> trong báo cáo tải công việc. Bộ chọn nhân sự cũng chỉ liệt kê bạn.</div></div>' : '')
+    + '<div class="cardGrid" style="margin-top:1rem">'
+    +   '<div class="card cardMd"><p class="cardTitle">Tỷ lệ hoàn thành</p><div class="donutWrap">'
+    +     donut(donePct)
+    +     '<ul class="legend" style="flex-direction:column;gap:.4rem;margin:0">'
+    +       [['#15803d','Hoàn thành',WORK_ITEMS.filter(w=>w.status==='done').length],['#2563eb','Đang làm',WORK_ITEMS.filter(w=>w.status==='in_progress').length],
+             ['#b91c1c','Bị chặn',WORK_ITEMS.filter(w=>w.status==='blocked').length],['#94a3b8','Chờ làm',WORK_ITEMS.filter(w=>w.status==='todo').length]]
+            .map(l => '<li><span class="legendDot" style="background:'+l[0]+'"></span><span style="flex:1">'+l[1]+'</span><b>'+l[2]+'</b></li>').join('')
+    +     '</ul></div></div>'
+    +   '<div class="card cardMd"><p class="cardTitle">Tải công việc theo nhân sự</p>'
+    +     '<ul class="bars">' + workload.map(r => {
+            const tot = r[1]+r[2]+r[3]+r[4], w = (n) => (n / maxW * 100) + '%';
+            return '<li><span class="who">'+esc(u(r[0]).name)+'</span><span class="track">'
+              + '<i class="seg s-urgent" style="width:'+w(r[1])+'"></i><i class="seg s-high" style="width:'+w(r[2])+'"></i>'
+              + '<i class="seg s-normal" style="width:'+w(r[3])+'"></i><i class="seg s-low" style="width:'+w(r[4])+'"></i>'
+              + '</span><span class="tot">'+tot+'</span></li>'; }).join('') + '</ul>'
+    +     '<ul class="legend">'+[['#b91c1c','Khẩn'],['#ea580c','Cao'],['#2563eb','Thường'],['#94a3b8','Thấp']].map(l=>'<li><span class="legendDot" style="background:'+l[0]+'"></span>'+l[1]+'</li>').join('')+'</ul>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="sectionTitle"><h2>Tiến độ dự án</h2><span class="muted">Cập nhật lúc 09:42 · 16/09/2026</span></div>'
+    + '<div class="card" style="padding:0;overflow:hidden"><div class="tableWrap"><table class="data"><thead><tr>'
+    +   '<th>Mã · Tên dự án</th><th>Chủ nhiệm</th><th>Tiến độ</th><th class="right">Đóng/Tổng</th><th class="right">Quá hạn</th><th>Hạn</th><th>Trạng thái</th></tr></thead><tbody>'
+    +   PROJECTS.map(p => '<tr onclick="sel.project=\''+p.id+'\';go(\'projects\')"'+(p.overdue?' style="background:#fff7f7"':'')+'>'
+    +     '<td><span class="code">'+p.code+'</span><span class="sub">'+esc(p.name)+'</span></td>'
+    +     '<td>'+av(p.owner)+'</td><td style="min-width:8rem">'+bar(p.progress)+'</td>'
+    +     '<td class="right numeric">'+p.done+'/'+p.total+'</td>'
+    +     '<td class="right numeric">'+(p.overdue?'<span class="overdueTxt">'+p.overdue+'</span>':'0')+'</td>'
+    +     '<td>'+fmtD(p.end)+'</td><td><span class="badge '+PST[p.status].c+'">'+PST[p.status].l+'</span></td></tr>').join('')
+    + '</tbody></table></div>'+pager(1,PROJECTS.length,PROJECTS.length,'dự án',1,1)+'</div>'
+    + '<div class="sectionTitle"><h2>Công việc quá hạn</h2></div>'
+    + (openItems().filter(isOverdue).length
+        ? '<div class="card" style="padding:0;overflow:hidden"><div class="tableWrap"><table class="data"><thead><tr>'
+          + '<th>Mã việc</th><th>Tiêu đề</th><th>Người phụ trách</th><th>Hạn</th><th class="right">Số ngày trễ</th><th>Ưu tiên</th></tr></thead><tbody>'
+          + openItems().filter(isOverdue).sort((a,b)=>a.end.localeCompare(b.end)).map(w => '<tr onclick="sel.task=\''+w.id+'\';go(\'tasks\')">'
+          + '<td><span class="code">'+w.code+'</span></td><td>'+esc(w.title)+'</td><td>'+(w.assignee?av(w.assignee)+' '+esc(u(w.assignee).name):'—')+'</td>'
+          + '<td class="overdueTxt">'+fmtD(w.end)+'</td><td class="right numeric overdueTxt">'+daysLate(w.end)+'</td><td>'+pbadge(w.prio)+'</td></tr>').join('')
+          + '</tbody></table></div></div>'
+        : '<div class="empty">Không có công việc quá hạn. 🎉</div>');
+}
+function donut(pct) {
+  const r = 38, c = 2 * Math.PI * r, on = c * pct / 100;
+  return '<svg width="110" height="110" viewBox="0 0 110 110">'
+    + '<circle cx="55" cy="55" r="'+r+'" fill="none" stroke="#e9eef8" stroke-width="13"/>'
+    + '<circle cx="55" cy="55" r="'+r+'" fill="none" stroke="#15803d" stroke-width="13" stroke-linecap="round"'
+    + ' stroke-dasharray="'+on+' '+(c-on)+'" transform="rotate(-90 55 55)"/>'
+    + '<text x="55" y="51" class="donutTotal">'+pct+'%</text><text x="55" y="68" class="donutUnit">hoàn thành</text></svg>';
+}
+
+/* =========================================================================
+   DIALOG — MinimalPopupForm
+   ========================================================================= */
+function f(label, input, hint, full) {
+  return '<div class="field'+(full?' full':'')+'"><label>'+label+'</label>'+input+(hint?'<span class="fieldHint">'+hint+'</span>':'')+'</div>';
+}
+function dlgProject(id) {
+  const p = id ? PROJECTS.find(x => x.id === id) : null;
+  openDialog(p ? 'Cập nhật dự án' : 'Tạo dự án mới',
+    p ? 'Mã dự án không sửa được sau khi tạo.' : 'Người tạo tự động trở thành chủ nhiệm dự án.',
+      f('Mã dự án <span style="color:#b91c1c">*</span>', '<input id="pjCode" value="'+(p?p.code:'')+'" '+(p?'disabled':'')+' placeholder="DA-2026-XXX" />', 'Tự chuẩn hoá về chữ hoa, duy nhất trong tenant')
+    + f('Tên dự án <span style="color:#b91c1c">*</span>', '<input id="pjName" value="'+(p?esc(p.name):'')+'" placeholder="Nhập tên dự án" />')
+    + f('Đơn vị phụ trách', '<select><option>Khối Công nghệ thông tin</option><option>Khối Vận hành</option><option>Ban Chất lượng</option></select>', 'Lấy từ cây tổ chức của Platform Core')
+    + f('Trạng thái', '<select><option>Lập kế hoạch</option><option selected>Đang chạy</option><option>Tạm dừng</option></select>')
+    + f('Ngày bắt đầu', '<input type="date" id="pjStart" value="'+(p?p.start:'2026-09-16')+'" />')
+    + f('Ngày kết thúc', '<input type="date" id="pjEnd" value="'+(p?p.end:'2026-12-31')+'" />')
+    + f('Mô tả', '<textarea placeholder="Mục tiêu và phạm vi dự án"></textarea>', null, true),
+    p ? 'Lưu thay đổi' : 'Tạo dự án', () => {
+      const code = ($('#pjCode').value || '').trim().toUpperCase(), name = ($('#pjName').value || '').trim();
+      if (!code) return toast('err','Thiếu thông tin bắt buộc','Mã dự án không được để trống.');
+      if (!name) return toast('err','Thiếu thông tin bắt buộc','Tên dự án không được để trống.');
+      if (!p && PROJECTS.some(x => x.code === code)) return toast('err','Mã dự án đã tồn tại','Hãy chọn một mã khác.');
+      if ($('#pjEnd').value < $('#pjStart').value) return toast('err','Ngày không hợp lệ','Ngày kết thúc phải sau ngày bắt đầu.');
+      closeOverlay();
+      toast('ok', p ? 'Đã cập nhật dự án' : 'Đã tạo dự án', p ? '' : 'Bạn được gán vai trò owner và ghi outbox workspace.project.created.');
+    });
+}
+function dlgTask(id) {
+  const w = id ? WORK_ITEMS.find(x => x.id === id) : null;
+  openDialog(w ? 'Cập nhật công việc' : 'Tạo công việc mới',
+    w ? 'Mã công việc sinh tự động theo mã dự án.' : 'Công việc sẽ nằm dưới hạng mục đang chọn trên cây WBS.',
+      f('Tiêu đề <span style="color:#b91c1c">*</span>', '<input id="tkTitle" value="'+(w?esc(w.title):'')+'" placeholder="Nhập tiêu đề công việc" />', null, true)
+    + f('Loại', '<select id="tkType"><option value="task">Công việc</option><option value="phase">Hạng mục</option><option value="milestone">Cột mốc</option></select>')
+    + f('Ưu tiên', '<select><option>Thường</option><option>Cao</option><option>Khẩn</option><option>Thấp</option></select>')
+    + f('Người phụ trách', '<select '+(can('task.assign')?'':'disabled')+'>'+Object.keys(USERS).map(k=>'<option>'+esc(USERS[k].name)+'</option>').join('')+'</select>', can('task.assign')?'Bắt buộc là thành viên dự án':'Chỉ quản lý dự án mới gán được người')
+    + f('Ước lượng (giờ)', '<input id="tkEst" type="number" step="0.25" min="0" value="'+(w&&w.est?w.est:'')+'" placeholder="8" />', 'Số liệu lập kế hoạch, không phải chấm công')
+    + f('Ngày bắt đầu', '<input type="date" id="tkStart" value="2026-09-16" />')
+    + f('Hạn hoàn thành', '<input type="date" id="tkEnd" value="'+(w?w.end:'2026-09-30')+'" />')
+    + f('Mô tả', '<textarea placeholder="Nội dung cần thực hiện"></textarea>', null, true),
+    w ? 'Lưu thay đổi' : 'Tạo công việc', () => {
+      const t = ($('#tkTitle').value || '').trim();
+      if (!t) return toast('err','Thiếu thông tin bắt buộc','Tiêu đề công việc không được để trống.');
+      if (t.length > 200) return toast('err','Tiêu đề quá dài','Tiêu đề tối đa 200 ký tự.');
+      if ($('#tkEnd').value < $('#tkStart').value) return toast('err','Ngày không hợp lệ','Hạn hoàn thành phải sau ngày bắt đầu.');
+      const est = parseFloat($('#tkEst').value || '0');
+      if ($('#tkEst').value && est <= 0) return toast('err','Giá trị không hợp lệ','Ước lượng giờ phải lớn hơn 0.');
+      if ($('#tkType').value === 'milestone' && $('#tkEst').value) return toast('err','Cột mốc không có giờ ước lượng','Hãy để trống ô Ước lượng.');
+      closeOverlay();
+      toast('ok', w ? 'Đã cập nhật công việc' : 'Đã tạo công việc', 'Sinh mã theo dự án, đặt status = todo.');
+    });
+}
+function dlgUpload(newVersion) {
+  openDialog(newVersion ? 'Tải phiên bản mới' : 'Tải tài liệu lên',
+    'Tệp được tải thẳng lên kho lưu trữ bằng URL ký trước. Máy chủ không nhận nội dung tệp.',
+      '<div class="field full"><div class="dropzone">'+ic('down',22)+'<b>Kéo thả tệp vào đây</b><span>hoặc bấm để chọn · tối đa 50 MB</span>'
+      + '<span class="fieldHint">PDF, Word, Excel, PowerPoint, ảnh, ZIP</span></div></div>'
+    + (newVersion ? '' : f('Tên hiển thị <span style="color:#b91c1c">*</span>', '<input id="upName" placeholder="Nhập tên tài liệu" />', null, true))
+    + f(newVersion ? 'Ghi chú thay đổi <span style="color:#b91c1c">*</span>' : 'Ghi chú', '<textarea id="upNote" placeholder="'+(newVersion?'Bắt buộc từ phiên bản 2 trở đi':'Tuỳ chọn')+'"></textarea>', null, true)
+    + f('Thẻ', '<input placeholder="thiết kế, csdl" />', 'Tối đa 10 thẻ')
+    + f('Thư mục', '<select><option>02. Tài liệu thiết kế / Cơ sở dữ liệu</option><option>02. Tài liệu thiết kế / Giao diện</option></select>'),
+    newVersion ? 'Tải lên phiên bản mới' : 'Tải lên', () => {
+      if (!newVersion && !($('#upName').value || '').trim()) return toast('err','Thiếu thông tin bắt buộc','Tên tài liệu không được để trống.');
+      if (newVersion && !($('#upNote').value || '').trim()) return toast('err','Thiếu ghi chú thay đổi','Ghi chú bắt buộc từ phiên bản 2 trở đi.');
+      closeOverlay();
+      toast('ok','Đã tải lên tài liệu','Ghi metadata rồi trình duyệt PUT thẳng lên MinIO.');
+    });
+}
+function dlgEvent(id) {
+  const e = id ? EVENTS.find(x => x.id === id) : null;
+  openDialog(e ? 'Cập nhật sự kiện' : 'Tạo sự kiện',
+    'Trùng lịch người chỉ cảnh báo; trùng lịch tài nguyên bị chặn.',
+      f('Tiêu đề <span style="color:#b91c1c">*</span>', '<input id="evTitle" value="'+(e?esc(e.title):'')+'" placeholder="Nhập tiêu đề sự kiện" />', null, true)
+    + f('Loại', '<select><option>Cuộc họp</option><option>Hạn chót</option><option>Công việc</option><option>Khác</option></select>')
+    + f('Dự án liên quan', '<select><option>DA-2026-001 · Triển khai ERP Savina</option><option>Không gắn dự án</option></select>')
+    + f('Bắt đầu', '<input type="datetime-local" id="evStart" value="2026-09-16T09:00" />')
+    + f('Kết thúc', '<input type="datetime-local" id="evEnd" value="2026-09-16T10:30" />')
+    + f('Người tham dự', '<select multiple size="3" style="height:auto">'+Object.keys(USERS).map(k=>'<option>'+esc(USERS[k].name)+'</option>').join('')+'</select>', 'Tối đa 100 người')
+    + f('Tài nguyên', '<select id="evRoom"><option value="">Không đặt phòng</option><option value="P.301">P.301 · 12 chỗ</option><option value="P.205">P.205 · 6 chỗ</option></select>', 'Phòng đã bận sẽ bị chặn')
+    + f('Lặp lại', '<select id="evRep"><option value="">Không lặp</option><option value="d">Hằng ngày</option><option value="w">Hằng tuần</option><option value="m">Hằng tháng</option></select>')
+    + f('Kết thúc lặp', '<input type="date" id="evUntil" value="2026-12-31" />', 'Bắt buộc khi bật lặp, tối đa 365 lần'),
+    e ? 'Lưu thay đổi' : 'Tạo sự kiện', () => {
+      const t = ($('#evTitle').value || '').trim();
+      if (!t) return toast('err','Thiếu thông tin bắt buộc','Tiêu đề sự kiện không được để trống.');
+      if ($('#evEnd').value <= $('#evStart').value) return toast('err','Thời gian không hợp lệ','Thời gian kết thúc phải sau thời gian bắt đầu.');
+      if ($('#evRoom').value === 'P.301') return toast('err','Phòng đã được đặt','P.301 đã có lịch từ 09:00 đến 10:30. Hãy chọn khung giờ hoặc phòng khác.');
+      if ($('#evRep').value && !$('#evUntil').value) return toast('err','Thiếu điểm dừng','Phải chọn ngày kết thúc hoặc số lần lặp.');
+      closeOverlay();
+      toast('ok', e ? 'Đã cập nhật sự kiện' : 'Đã tạo sự kiện', '2 người tham dự đã có lịch khác trong khung giờ này.');
+    });
+}
+
+/* =========================================================================
+   FORMAT
+   ========================================================================= */
+function fmtD(s) { if (!s) return '—'; const p = s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function fmtH(h) { const H = Math.floor(h), M = Math.round((h - H) * 60); return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0'); }
+function daysLate(end) { return Math.max(1, Math.round((new Date('2026-09-16') - new Date(end)) / 86400000)); }
+
+/* ---- Khởi động ---------------------------------------------------------- */
+const h0 = location.hash.replace('#','');
+if (TITLES[h0]) view = h0;
+render();
+/* Khi nhúng vào slide (?slide), bỏ toast chào mừng để không che nội dung. */
+if (!location.search.includes('slide')) {
+  setTimeout(() => toast('ok','Bản mockup giao diện Workspace','Đổi ô Vai trò trên thanh trên cùng để xem phân quyền thay đổi.'), 600);
+}
+</script>
+</body>
+</html>
